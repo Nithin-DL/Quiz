@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Funngro Professional UI Integrated</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet"> 
+
+<style>
+/* ------------------------------------------- */
+/* --- BASE & COMMON STYLES --- */
+/* ------------------------------------------- */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+}
+body {
+    background: #0d1a29; /* Deep Dark Background */
+    color: #f7f7f7;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+}
+.app-container {
+    width: 100%;
+    max-width: 450px;
+    background: #0d1a29;
+    padding-bottom: 90px;
+    padding-top: 60px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+button, .icon-btn, .nav-item, .project-tab-btn {
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+    border: none;
+    user-select: none;
+    cursor: pointer;
+}
+.main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 450px;
+    height: 60px;
+    background: #1a2a3b;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    z-index: 10;
+}
+.app-name {
+    font-weight: 700; 
+    color: #ffca28;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.app-name i {
+    margin-right: 5px;
+    font-size: 1.5em;
+    color: #ffca28;
+}
+#headerTitle {
+    color: #fff;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+.icon-btn {
+    font-size: 1.1em; 
+    color: #fff;
+    border-radius: 50%;
+    padding: 8px; 
+    background: #2c3e50; 
+    transition: background 0.2s;
+}
+.bell-icon { color: #ff8a65; }
+.profile-icon { color: #4db6ac; }
+.content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 10px 0;
+    min-height: calc(100vh - 150px);
+    align-items: center;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.fade-in { animation: fadeIn 0.8s ease forwards; }
+
+/* ------------------------------------------------------------- */
+/* --- PROJECT/WALLET STYLES --- */
+/* ------------------------------------------------------------- */
+/* NEW PROJECT TABS STYLE */
+.project-tabs {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 90%;
+    max-width: 420px;
+    margin: 20px auto 15px;
+    background: #1a2a3b;
+    padding: 8px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+.project-tab-btn {
+    flex: 1;
+    padding: 10px 5px;
+    font-size: 0.9em;
+    font-weight: 600;
+    color: #95a5a6;
+    background: transparent;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+/* FIX: Specific color classes for each active tab */
+.project-tab-btn.active-live {
+    color: #1a2a3b;
+    background: #4caf50; /* Live Green */
+    box-shadow: 0 3px 8px rgba(76, 175, 80, 0.4);
+}
+.project-tab-btn.active-upcoming {
+    color: #1a2a3b;
+    background: #ffca28; /* Upcoming Yellow */
+    box-shadow: 0 3px 8px rgba(255, 202, 40, 0.4);
+}
+/* CHANGED: active-closed to active-completed */
+.project-tab-btn.active-completed { 
+    color: #1a2a3b;
+    background: #4db6ac; /* Completed Turquoise */
+    box-shadow: 0 3px 8px rgba(77, 182, 172, 0.4);
+}
+/* END NEW PROJECT TABS STYLE */
+
+
+.wallet-content-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: 0 15px;
+}
+.wallet-card {
+    background: #1a2a3b;
+    border-radius: 15px;
+    padding: 25px;
+    width: 100%;
+    margin: 20px 0;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+    border-left: 6px solid #ffca28;
+    display: flex;
+    flex-direction: column;
+    color: #f7f7f7;
+}
+.available-balance-row h4 {
+    font-size: 0.9em;
+    font-weight: 500;
+    color: #95a5a6;
+    margin: 0;
+    letter-spacing: 0.5px;
+}
+#currentBalance {
+    font-size: 3.2em;
+    font-weight: 900;
+    margin: 5px 0 0;
+    color: #ffca28;
+    line-height: 1;
+}
+.primary-withdraw-btn {
+    width: 100%;
+    background: linear-gradient(90deg, #ff7043, #d32f2f);
+    color: #fff;
+    font-size: 1em;
+    padding: 15px 20px;
+    border-radius: 12px;
+    font-weight: 700;
+    box-shadow: 0 5px 20px rgba(255, 112, 67, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 15px;
+    transition: transform 0.2s;
+}
+.primary-withdraw-btn:active { transform: scale(0.98); }
+.project-section-header {
+    margin: 30px 0 15px;
+    font-size: 1em;
+    font-weight: 500;
+    color: #7f8c8d;
+    padding: 0 15px;
+    width: 100%;
+    text-align: center;
+}
+.project-list {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 15px; 
+    padding: 0 15px;
+    min-height: 200px;
+}
+.project-item {
+    background: linear-gradient(145deg, #1a2a3b, #15222d);
+    border-radius: 10px;
+    padding: 15px; 
+    border-left: 6px solid;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+.project-item.live { border-left-color: #4caf50; }
+.project-item.upcoming { border-left-color: #ffca28; }
+.project-item.closed { border-left-color: #d32f2f; opacity: 0.8; }
+.project-item.completed { border-left-color: #4db6ac; opacity: 1; }
+
+.project-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+.project-header span:first-child {
+    font-weight: 600;
+    color: #f7f7f7;
+    font-size: 1.05em;
+}
+
+/* NEW: Project Status Badge */
+.status-badge {
+    font-size: 0.75em;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-left: 10px;
+    line-height: 1;
+    display: inline-block;
+}
+.status-badge.live { background: #4caf50; color: #1a2a3b; }
+.status-badge.upcoming { background: #ffca28; color: #1a2a3b; }
+.status-badge.closed { background: #d32f2f; color: #fff; }
+.status-badge.completed { background: #4db6ac; color: #1a2a3b; }
+
+
+.project-reward {
+    color: #4db6ac;
+    font-size: 1.2em; 
+    font-weight: 700;
+}
+.math-task-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 5px;
+}
+.math-task-container span:first-child {
+    font-weight: 500;
+    font-size: 0.9em;
+    color: #95a5a6;
+    flex-shrink: 0;
+}
+.math-task-container input {
+    width: 100px; 
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #334e68;
+    background: #1a2a3b;
+    color: #fff;
+    font-size: 1em;
+    text-align: center;
+    font-weight: 600;
+    transition: border-color 0.3s;
+    /* Adjusted width for short box */
+    width: 90px; 
+}
+.submit-btn {
+    background: linear-gradient(135deg, #66bb6a, #43a047);
+    color: #fff;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-weight: 600;
+    flex-shrink: 0;
+    font-size: 0.9em;
+}
+.submit-btn:disabled {
+    background: #2c3e50;
+    opacity: 0.8;
+}
+.task-result {
+    font-size:0.8em;
+    margin-top: 8px;
+    font-weight: 500;
+    display: block;
+}
+/* New style for the timer */
+.task-timer {
+    color: #ffca28;
+    font-weight: 600;
+    font-size: 0.9em;
+    margin-top: 5px;
+    display: inline-block; /* Changed to inline-block to align with text */
+}
+
+/* --- DETAILED HISTORY TABLE STYLES --- */
+.history-table-container {
+    width: 100%;
+    overflow-x: auto; 
+    padding: 0 15px;
+    margin-bottom: 20px;
+}
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    min-width: 650px; 
+    font-size: 0.85em;
+}
+.history-table th, .history-table td {
+    padding: 12px 10px;
+    text-align: left;
+    border-bottom: 1px solid #1a2a3b;
+    vertical-align: top;
+}
+.history-table th {
+    background: #1a2a3b;
+    color: #7f8c8d;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: sticky;
+    top: 0;
+}
+.col-description {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    min-width: 220px;
+}
+.type-icon {
+    font-size: 1.1em;
+    padding: 5px;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.type-icon.credit { background: rgba(76, 175, 80, 0.2); color: #4caf50; }
+.type-icon.debit { background: rgba(211, 47, 47, 0.2); color: #d32f2f; }
+.details { display: flex; flex-direction: column; }
+.main-desc { font-weight: 600; color: #f7f7f7; line-height: 1.3;}
+.sub-desc { font-size: 0.75em; color: #95a5a6; }
+.col-amount { font-weight: 700; }
+.col-amount.credit { color: #4caf50; }
+.col-amount.debit { color: #d32f2f; }
+.col-status { font-weight: 500; }
+.status-completed { color: #4db6ac; }
+.status-processing { color: #ffca28; }
+.col-timestamp { color: #95a5a6; font-size: 0.8em; min-width: 130px; }
+
+/* --- HOME PAGE STYLES --- */
+.home-welcome-card {
+    width: 100%;
+    padding: 25px;
+    margin-top: 20px;
+    background: linear-gradient(135deg, #2e7d32, #4caf50);
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+.home-balance-display {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 15px;
+}
+.home-balance-display h4 {
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 500;
+    font-size: 0.9em;
+}
+.home-balance-display p {
+    font-size: 2em;
+    font-weight: 900;
+    color: #ffca28;
+    line-height: 1.2;
+}
+.home-cta-btn {
+    width: 100%;
+    background: #1a2a3b;
+    color: #ffca28;
+    font-size: 1.1em;
+    padding: 15px 20px;
+    border-radius: 12px;
+    font-weight: 700;
+    margin-top: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    transition: transform 0.2s;
+}
+
+/* --- REFER & EARN BUTTON STYLES --- */
+.refer-card {
+    background: #1a2a3b;
+    border-radius: 15px;
+    padding: 20px;
+    width: 100%;
+    margin-top: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    border: 1px solid #334e68;
+}
+.refer-card h3 {
+    color: #4db6ac;
+    font-weight: 700;
+    font-size: 1.3em;
+    margin-bottom: 10px;
+}
+.refer-card p {
+    color: #95a5a6;
+    font-size: 0.9em;
+    margin-bottom: 15px;
+}
+.refer-btn {
+    width: 100%;
+    background: linear-gradient(45deg, #4db6ac, #26a69a);
+    color: #fff;
+    font-size: 1em;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    box-shadow: 0 4px 10px rgba(0, 150, 136, 0.3);
+}
+
+/* --- ADMIN PANEL STYLES --- */
+.admin-form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 15px;
+    gap: 15px;
+}
+.admin-form h2 {
+    color: #ffca28;
+    font-size: 1.5em;
+    text-align: center;
+    margin-bottom: 10px;
+}
+.input-group label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 5px;
+    color: #95a5a6;
+    font-size: 0.9em;
+}
+.input-group input, .input-group textarea, .input-group select {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #334e68;
+    background: #1a2a3b;
+    color: #fff;
+    font-size: 1em;
+    resize: vertical;
+}
+.input-group input[type="date"], .input-group input[type="datetime-local"] {
+    /* Required to make date input text color visible */
+    color: #f7f7f7;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+.admin-submit-btn {
+    background: linear-gradient(45deg, #ffca28, #ff8a65);
+    color: #1a2a3b;
+    font-weight: 700;
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 10px;
+}
+
+/* ------------------------------------------- */
+/* --- BOTTOM NAVIGATION --- */
+/* ------------------------------------------- */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 450px;
+    height: 70px;
+    background: #1a2a3b;
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.5);
+    z-index: 11;
+}
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    font-size: 0.75em;
+    font-weight: 500;
+    color: #ccc;
+    transition: all 0.3s ease;
+    padding: 5px 0;
+    width: 20%;
+    text-align: center;
+}
+.nav-item i {
+    font-size: 1.6em;
+    margin-bottom: 2px;
+    transition: all 0.2s ease;
+}
+.nav-item.active i, .nav-item.active span {
+    color: #4caf50 !important;
+    font-weight: 600;
+}
+.nav-item.center-icon {
+    background: linear-gradient(135deg, #2e7d32, #4caf50);
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    position: relative;
+    top: -25px;
+    color: #fff;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5), 0 0 0 5px rgba(76, 175, 80, 0.3);
+    line-height: 0;
+    z-index: 12;
+}
+.nav-item.center-icon i {
+    font-size: 2.2em;
+    margin: 0;
+    color: #fff;
+    padding-top: 18px;
+}
+</style>
+</head>
+<body>
+<div class="app-container">
+<section class="main-header">
+<span class="app-name">
+    <i class="fa-solid fa-lightbulb"></i>
+    <span id="headerTitle">Nithin</span>
+</span>
+<div class="user-info">
+<span class="icon-btn bell-icon" id="bellBtn"><i class="fa-solid fa-bell"></i></span>
+<span class="icon-btn profile-icon" id="profileBtn"><i class="fa-solid fa-user"></i></span>
+</div>
+</section>
+
+<div class="content" id="mainContent">
+</div>
+
+<nav class="bottom-nav">
+<a href="#" class="nav-item active" data-section="home"><i class="fa-solid fa-house"></i><span>Home</span></a>
+<a href="#" class="nav-item" data-section="projects"><i class="fa-solid fa-list-check"></i><span>Projects</span></a>
+<a href="#" class="nav-item center-icon" data-section="add"><i class="fa-solid fa-plus"></i></a>
+<a href="#" class="nav-item" data-section="wallet"><i class="fa-solid fa-wallet"></i><span>Wallet</span></a>
+<a href="#" class="nav-item" data-section="more"><i class="fa-solid fa-ellipsis"></i><span>More</span></a>
+</nav>
+
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const navItems = document.querySelectorAll('.bottom-nav .nav-item');
+    const mainContent = document.getElementById('mainContent');
+    const bellBtn = document.getElementById('bellBtn');
+    const headerTitle = document.getElementById('headerTitle');
+
+    // --- GLOBAL STATE ---
+    let availableBalance = 150.75;
+    let mathTasks = [];
+    let history = []; 
+    let isBellActive = false;
+    let lastActiveTab = 'home';
+    let activeProjectTab = 'live'; // Default project tab
+    
+
+    // Current date for initial task date input
+    const today = new Date();
+
+    const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+    const updateHeaderTitle = (tab) => {
+        if (tab === 'home' || tab === 'notifications') {
+            headerTitle.textContent = 'Nithin';
+        } else if (tab === 'add') {
+            headerTitle.textContent = 'Admin Panel';
+        } else {
+            headerTitle.textContent = capitalize(tab);
+        }
+    };
+    
+    // Helper to format date/time
+    const formatTimestamp = (date) => {
+        const d = new Date(date);
+        return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    }
+    // Helper to format datetime-local input
+    const datetimeToInputFormat = (date) => {
+        const d = new Date(date);
+        const pad = (num) => (num < 10 ? '0' : '') + num;
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+    
+    // Helper to format remaining time
+    function formatTimeRemaining(ms) {
+        let totalSec = Math.max(0, Math.floor(ms / 1000));
+        let d = Math.floor(totalSec / 86400);
+        let h = Math.floor((totalSec % 86400) / 3600);
+        let m = Math.floor((totalSec % 3600) / 60);
+        let s = totalSec % 60;
+        
+        let parts = [];
+        if (d > 0) parts.push(`${d}d`);
+        if (h > 0) parts.push(`${h}h`);
+        if (m > 0 && parts.length < 2) parts.push(`${m}m`);
+        if (s > 0 && parts.length < 2) parts.push(`${s}s`);
+        
+        return parts.length > 0 ? parts.join(' ') : '0s';
+    }
+
+    // --- DATA & PERSISTENCE ---
+    function loadData() {
+        const storedBalance = localStorage.getItem('availableBalance');
+        if (storedBalance) {
+            availableBalance = parseFloat(storedBalance);
+        }
+        history = JSON.parse(localStorage.getItem('history')) || [
+            { id: Date.now() + 1, type: 'credit', category: 'Initial Setup', description: 'Wallet initialized', amount: 50.00, status: 'Completed', timestamp: Date.now() - 86400000 },
+            { id: Date.now() + 2, type: 'debit', category: 'Withdrawal', description: 'Past Withdrawal', amount: 20.00, status: 'Completed', timestamp: Date.now() - 3600000 }
+        ];
+
+        // MOCK TASK DATA: Live task now lasts 30 days to prevent immediate expiration.
+        const initialTasks = [
+            // Live Task: Opened 1 hour ago, closes in 30 days
+            { id: 1, Question: '15 + 8', Answer: '23', Reward: 5.00, start: new Date(Date.now() - 3600000), end: new Date(Date.now() + 86400000 * 30) }, 
+            // Upcoming Task: Starts tomorrow, closes in 10 days
+            { id: 3, Question: 'Survey: Future of AI', Answer: '100', Reward: 15.00, start: new Date(Date.now() + 86400000), end: new Date(Date.now() + 86400000 * 10) }, 
+            // Closed Task: Ended 5 days ago (This is the one you were missing)
+            { id: 4, Question: 'Old Task: Data Entry', Answer: '10', Reward: 5.00, start: new Date(Date.now() - 86400000 * 10), end: new Date(Date.now() - 86400000 * 5) }, 
+        ].map(t => ({
+            ...t,
+            start: t.start.getTime(), // Store as timestamp
+            end: t.end.getTime()     // Store as timestamp
+        }));
+        
+        // Load tasks from localStorage, or use initialTasks if none are saved
+        mathTasks = JSON.parse(localStorage.getItem('mathTasks')) || initialTasks;
+        
+        // Merge stored completion status
+        const storedStatuses = JSON.parse(localStorage.getItem('tasksStatus')) || [];
+        mathTasks = mathTasks.map(task => {
+            const stored = storedStatuses.find(t => t.id === task.id);
+            // Check history for completion if no stored status
+            const isCompletedInHistory = history.some(h => h.id === task.id && h.type === 'credit');
+
+            return {
+                ...task,
+                isCompleted: stored ? stored.isCompleted : isCompletedInHistory
+            };
+        });
+    }
+
+    function saveData() {
+        localStorage.setItem('availableBalance', availableBalance.toFixed(2));
+        localStorage.setItem('history', JSON.stringify(history));
+        // Save the full tasks array including new tasks
+        localStorage.setItem('mathTasks', JSON.stringify(mathTasks));
+        // Save just the completion status separately
+        localStorage.setItem('tasksStatus', JSON.stringify(mathTasks.map(t => ({ id: t.id, isCompleted: t.isCompleted, submittedAnswer: t.submittedAnswer || '' }))));
+    }
+
+    function updateBalanceUI() {
+        const balanceElement = document.getElementById('currentBalance');
+        if (balanceElement) {
+            balanceElement.textContent = `₹${availableBalance.toFixed(2)}`;
+        }
+        const homeBalanceElement = document.getElementById('homeBalance');
+        if (homeBalanceElement) {
+            homeBalanceElement.textContent = `₹${availableBalance.toFixed(2)}`;
+        }
+    }
+
+    function getTaskType(question) {
+        if (question.includes('+') || question.includes('-') || question.includes('*') || question.includes('/')) return 'Math Task';
+        if (question.toLowerCase().includes('survey')) return 'Survey Reward';
+        if (question.toLowerCase().includes('review') || question.toLowerCase().includes('report')) return 'Review/Report';
+        return 'Project Reward';
+    }
+    
+    // Core function to check task status based on dates
+    function checkTaskStatus(task) {
+        const now = Date.now();
+        const start = task.start;
+        const end = task.end;
+
+        if (task.isCompleted) return 'Completed'; // Completed status takes precedence
+        
+        // Upcoming 
+        if (now < start) {
+            return 'Upcoming'; 
+        } 
+        
+        // Live: Current time is on or after the start time AND before the end time
+        if (now >= start && now < end) {
+            return 'Live'; 
+        } 
+        
+        // Closed: Current time is on or after the end time and not completed
+        return 'Closed';
+    }
+
+    function checkAnswer(taskId, inputElement) {
+        const task = mathTasks.find(t => t.id === taskId);
+        const currentStatus = checkTaskStatus(task);
+
+        if (!task || task.isCompleted || currentStatus !== 'Live') return;
+
+        const submitBtn = inputElement.nextElementSibling;
+        const userAnswer = inputElement.value.trim();
+        
+        const numericAnswer = parseFloat(task.Answer);
+        const isNumericTask = !isNaN(numericAnswer) && (task.Question.includes('+') || task.Question.includes('-') || task.Question.includes('*') || task.Question.includes('/'));
+
+        // Allow case-insensitive exact match or numeric match
+        const isCorrect = isNumericTask
+            ? Math.abs(parseFloat(userAnswer) - numericAnswer) < 0.0001
+            : userAnswer.toLowerCase() === task.Answer.toLowerCase().trim();
+
+        let resultContainer = inputElement.closest('.project-item').querySelector('.task-result');
+
+        if (isCorrect) {
+            // CREDITING LOGIC
+            availableBalance += task.Reward;
+            task.isCompleted = true;
+            task.submittedAnswer = userAnswer; // Save the submitted answer
+            const completionTime = Date.now(); 
+
+            history.unshift({
+                id: taskId, 
+                type: 'credit',
+                category: getTaskType(task.Question),
+                description: task.Question,
+                amount: task.Reward,
+                status: 'Completed',
+                timestamp: completionTime
+            });
+            saveData();
+            updateBalanceUI();
+
+            inputElement.disabled = true;
+            submitBtn.disabled = true;
+            submitBtn.textContent = "DONE";
+            submitBtn.style.background = '#4db6ac'; 
+            
+            if (resultContainer) {
+                 resultContainer.innerHTML = `✅ **Task Submitted!** Credited: ₹${task.Reward.toFixed(2)}`; 
+                 resultContainer.style.color = '#4caf50';
+            }
+            // Force re-render of the current tab to reflect completion status correctly
+            updateProjectTabsContent(); 
+        } else {
+            // INCORRECT LOGIC
+            if (resultContainer) {
+                resultContainer.textContent = "❌ Incorrect. Try again.";
+                resultContainer.style.color = '#d32f2f';
+            }
+            // Keep the user's incorrect answer or clear it, depending on desired UX. Clearing is safer.
+            inputElement.value = '';
+        }
+    }
+
+    // MODIFIED: Separates tasks into three distinct lists: Live, Upcoming, and Completed.
+    function processTasksForDisplay() {
+        let liveList = [];
+        let upcomingList = [];
+        let closedList = []; // Tasks that expired without submission
+        let completedList = []; // Tasks that were successfully submitted
+
+        mathTasks.forEach(task => {
+            const status = checkTaskStatus(task);
+            const taskWithStatus = { ...task, status: status };
+
+            if (task.isCompleted) {
+                // Completed tasks go to the Completed list
+                completedList.push(taskWithStatus); 
+            } else if (status === 'Live') {
+                liveList.push(taskWithStatus); 
+            } else if (status === 'Upcoming') {
+                upcomingList.push(taskWithStatus);
+            } else if (status === 'Closed') {
+                // Closed (expired, uncompleted) tasks go here
+                closedList.push(taskWithStatus);
+            }
+        });
+
+        // Sorting:
+        liveList.sort((a, b) => a.end - b.end); // Live: by closing soonest.
+        upcomingList.sort((a, b) => a.start - b.start); // Upcoming: by starting soonest.
+        // Completed: Sort by completion time (most recent first)
+        completedList.sort((a, b) => {
+            const timeA = history.find(h => h.id === a.id && h.type === 'credit')?.timestamp || a.end;
+            const timeB = history.find(h => h.id === b.id && h.type === 'credit')?.timestamp || b.end;
+            return timeB - timeA;
+        });
+
+        return { live: liveList, upcoming: upcomingList, completed: completedList, closed: closedList };
+    }
+
+    let timerInterval = null; // To hold the interval reference for the timer
+
+    // --- TEMPLATES (MODIFIED: Added Submitted Answer Display) ---
+    const projectItemTemplate = (task) => {
+        const statusKey = task.status;
+        const statusClass = statusKey.toLowerCase();
+        
+        const canSubmit = statusKey === 'Live' && !task.isCompleted;
+        const submitText = task.isCompleted ? 'DONE' : 'Submit';
+        const isDisabled = !canSubmit ? 'disabled' : '';
+        
+        const completedEntry = history.find(h => h.id === task.id && h.type === 'credit');
+        
+        // Get the answer display (the correct answer is only shown on the completed tab)
+        let answerDisplay = '';
+        if (task.isCompleted) {
+             const submittedAns = task.submittedAnswer || 'N/A';
+             const correctAns = task.Answer;
+             answerDisplay = `
+                <div style="font-size:0.9em; margin-top:5px; color:#4db6ac;">
+                    <p style="margin-bottom: 2px;">Your Answer: <strong style="color: #fff;">${submittedAns}</strong></p>
+                    <p>Correct Answer: <strong style="color: #fff;">${correctAns}</strong></p>
+                </div>
+             `;
+        }
+
+        // Time/Status Display Setup
+        let timeDisplayHTML = '';
+        let infoColor = '#95a5a6';
+
+        if (statusKey === 'Live') {
+            timeDisplayHTML = `Time Remaining: <span class="task-timer" data-timer-id="${task.id}" data-end-time="${task.end}">Calculating...</span>`;
+            infoColor = '#ffca28';
+        } else if (statusKey === 'Upcoming') {
+            timeDisplayHTML = `Starts: ${formatTimestamp(task.start)}`;
+            infoColor = '#ffca28';
+        } else if (statusKey === 'Completed') {
+            timeDisplayHTML = `Completed on: ${formatTimestamp(completedEntry ? completedEntry.timestamp : task.end)}`;
+            infoColor = '#4db6ac';
+        } else if (statusKey === 'Closed') {
+             timeDisplayHTML = `Ended: ${formatTimestamp(task.end)}`;
+             infoColor = '#d32f2f';
+        }
+
+        const isActionable = (statusKey === 'Live' && !task.isCompleted);
+
+        const taskActionHTML = isActionable ? `
+            <div class="math-task-container">
+                <span>Answer:</span>
+                <input type="text" id="input-${task.id}" placeholder="Type Answer" value="">
+                <button class="submit-btn" data-task-id="${task.id}" ${isDisabled}>${submitText}</button>
+            </div>
+            <span class="task-result" style="color:${infoColor};">
+                ${timeDisplayHTML}
+            </span>
+        ` : `
+            <p class="task-result" style="color:${infoColor}; font-size:0.9em; margin-top:5px; padding-bottom: 5px;">
+                ${timeDisplayHTML}
+            </p>
+        `;
+
+        // Determine the text for the status badge
+        const badgeText = capitalize(statusKey);
+        const rewardText = task.isCompleted ? `+₹${task.Reward.toFixed(2)}` : `₹${task.Reward.toFixed(2)}`;
+        const rewardColor = task.isCompleted ? '#4caf50' : '#4db6ac';
+
+        return `
+            <div class="project-item fade-in ${statusClass}" data-task-id="${task.id}">
+                <div class="project-header">
+                    <span>
+                        ${task.Question}
+                        <span class="status-badge ${statusKey.toLowerCase()}">${badgeText}</span>
+                    </span>
+                    <span class="project-reward" style="color: ${rewardColor};">${rewardText}</span>
+                </div>
+                ${isActionable ? taskActionHTML : ''}
+                ${task.isCompleted ? answerDisplay : ''}
+                ${!isActionable ? taskActionHTML : ''}
+            </div>
+        `;
+    };
+
+    // Only update timers for the currently visible tab's content
+    function updateTimers() {
+        const now = Date.now();
+        let shouldReRender = false;
+
+        document.querySelectorAll(`#projectListContent .project-item`).forEach(item => {
+            const taskId = parseInt(item.dataset.taskId);
+            const task = mathTasks.find(t => t.id === taskId);
+            
+            // Only proceed if the task is live and not completed
+            if (!task || task.isCompleted) return;
+
+            const timerEl = item.querySelector('.task-timer');
+            if (!timerEl) return;
+
+            const currentStatus = checkTaskStatus(task);
+            let diff = 0;
+
+            if (currentStatus === 'Live') {
+                diff = task.end - now;
+            } else if (currentStatus === 'Upcoming') {
+                // If the task becomes live, we need a re-render to move it to the Live tab.
+                if (task.start < now) {
+                     shouldReRender = true;
+                     return;
+                }
+            } else {
+                // Not a Live/Upcoming task with a timer
+                return;
+            }
+
+
+            if (diff <= 0 && currentStatus === 'Live') {
+                // Task time has passed, force status update and re-render
+                shouldReRender = true;
+            } else if (currentStatus === 'Live') {
+                timerEl.innerText = formatTimeRemaining(diff);
+            }
+        });
+        
+        if (shouldReRender) {
+            // Time's up for one or more tasks, force a full re-render
+            clearInterval(timerInterval); 
+            timerInterval = null;
+            updateProjectTabsContent(); // Re-render the current tab
+        }
+    }
+
+
+    // MODIFIED: Updates content and sets the correct ACTIVE tab class
+    function updateProjectTabsContent(newTab) {
+        if (newTab) {
+            activeProjectTab = newTab;
+        }
+        
+        // Stop existing interval before any render/tab change
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+
+        const projectListContent = document.getElementById('projectListContent');
+        if (!projectListContent) return;
+        
+        const tasks = processTasksForDisplay();
+        let listToDisplay;
+        let emptyMessage;
+        
+        switch(activeProjectTab) {
+            case 'live':
+                listToDisplay = tasks.live;
+                emptyMessage = `No **LIVE** projects right now. Check back soon or view Upcoming projects!`;
+                break;
+            case 'upcoming':
+                listToDisplay = tasks.upcoming;
+                emptyMessage = `No **UPCOMING** projects scheduled yet.`;
+                break;
+            case 'completed': // NEW TAB
+                listToDisplay = tasks.completed;
+                // NEW: Default message if no completed tasks
+                emptyMessage = `You have **NOT SUBMITTED** any task yet. Go to Live projects to earn!`; 
+                break;
+            default:
+                listToDisplay = [];
+                emptyMessage = `Select a project tab to view tasks.`;
+        }
+
+        const createTaskListHTML = (taskList) => {
+            if (!taskList || taskList.length === 0) {
+                return `<p style="color:#7f8c8d; padding:15px; font-size:0.9em; text-align:center; margin-top: 30px;">${emptyMessage}</p>`;
+            }
+            return taskList.map(projectItemTemplate).join('');
+        };
+
+        projectListContent.innerHTML = createTaskListHTML(listToDisplay);
+        
+        // FIX: Update the active button class with status-specific class
+        document.querySelectorAll('.project-tab-btn').forEach(btn => {
+            // Remove ALL active classes first (including the old 'active-closed')
+            btn.classList.remove('active-live', 'active-upcoming', 'active-closed', 'active-completed'); 
+
+            if (btn.dataset.tab === activeProjectTab) {
+                // Add the specific active class
+                btn.classList.add(`active-${activeProjectTab}`);
+            }
+        });
+
+        // Attach event listeners for submit buttons
+        projectListContent.querySelectorAll('.submit-btn').forEach(button => {
+            if (!button.disabled) {
+                const taskId = parseInt(button.dataset.taskId);
+                const inputElement = document.getElementById(`input-${taskId}`);
+
+                button.addEventListener('click', () => {
+                    checkAnswer(taskId, inputElement);
+                });
+
+                if (inputElement) {
+                    inputElement.addEventListener('keyup', (e) => {
+                        if (e.key === 'Enter') {
+                            checkAnswer(taskId, inputElement);
+                        }
+                    });
+                }
+            }
+        });
+        
+        // Start the timer interval if we are on the Live tab AND there are live tasks
+        const hasActiveTimers = activeProjectTab === 'live' && listToDisplay.length > 0;
+        if (hasActiveTimers) {
+            updateTimers(); // Initial call
+            // Only start if not already running
+            if (!timerInterval) {
+                 timerInterval = setInterval(updateTimers, 1000); 
+            }
+        }
+    }
+
+
+    // MODIFIED: Renders the project structure with the new 'Completed' tab
+    function renderProjectsDashboardStructure() {
+        // Stop any existing timer before rendering a new structure
+        if (timerInterval) clearInterval(timerInterval); 
+        
+        // Adjust activeProjectTab if it was set to the old 'closed' tab
+        if (activeProjectTab === 'closed') {
+            activeProjectTab = 'completed';
+        }
+
+        const structureHTML = `
+            <div class="fade-in" style="width: 100%; padding: 0;">
+                <div class="project-tabs">
+                    <button class="project-tab-btn" data-tab="live">Live</button>
+                    <button class="project-tab-btn" data-tab="upcoming">Upcoming</button>
+                    <button class="project-tab-btn" data-tab="completed">Completed</button> 
+                </div>
+                
+                <div class="project-list" id="projectListContent">
+                </div>
+            </div>
+        `;
+
+        mainContent.innerHTML = structureHTML;
+        
+        // Set up tab click listeners
+        document.querySelectorAll('.project-tab-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                updateProjectTabsContent(button.dataset.tab);
+            });
+        });
+
+        // Initial content load (for the default active tab: 'live' or the last one visited)
+        updateProjectTabsContent(activeProjectTab);
+    }
+
+    function renderHistoryTable() {
+        const historyRowsHTML = history.map(historyTableTemplate).join('');
+
+        return `
+            <div class="project-section-header">
+                TRANSACTION HISTORY
+            </div>
+            <div class="history-table-container">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Description & Category</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${historyRowsHTML}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+
+    const historyTableTemplate = (item) => {
+        const typeClass = item.type === 'credit' ? 'credit' : 'debit';
+        const sign = item.type === 'credit' ? '+' : '-';
+        const statusClass = item.status === 'Completed' ? 'status-completed' : item.status === 'Processing' ? 'status-processing' : '';
+        
+        const descriptionDisplay = item.description.length > 40 ? item.description.substring(0, 37) + '...' : item.description;
+
+        return `
+            <tr>
+                <td class="col-description">
+                    <span class="type-icon ${typeClass}"><i class="fa-solid ${item.type === 'credit' ? 'fa-arrow-up' : 'fa-arrow-down'}"></i></span>
+                    <div class="details">
+                        <span class="main-desc">${descriptionDisplay}</span>
+                        <span class="sub-desc">${item.category} (ID: ${item.id.toString().slice(-4)})</span>
+                    </div>
+                </td>
+                <td class="col-amount ${typeClass}">${sign}₹${item.amount.toFixed(2)}</td>
+                <td class="col-status ${statusClass}">${item.status}</td>
+                <td class="col-timestamp">${formatTimestamp(item.timestamp)}</td>
+            </tr>
+        `;
+    };
+
+    function renderWalletPage() {
+        // Stop timer if it's running
+        if (timerInterval) clearInterval(timerInterval); 
+
+        mainContent.innerHTML = `
+            <div class="wallet-content-wrapper fade-in">
+                <div class="wallet-card">
+                    <div class="available-balance-row">
+                        <div class="balance-info">
+                            <h4>Available Balance</h4>
+                            <p id="currentBalance">₹${availableBalance.toFixed(2)}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="primary-withdraw-btn" id="withdrawBtn">
+                    <i class="fa-solid fa-hand-holding-dollar"></i> REQUEST WITHDRAWAL
+                </button>
+                
+                ${renderHistoryTable()}
+            </div>
+        `;
+        document.getElementById('withdrawBtn').addEventListener('click', () => {
+             if(availableBalance < 10) { 
+                alert('Minimum withdrawal is ₹10.00.');
+                return;
+             }
+             const withdrawAmount = availableBalance;
+
+             history.unshift({
+                id: Date.now(),
+                type: 'debit',
+                category: 'Withdrawal',
+                description: `Request for ₹${withdrawAmount.toFixed(2)}`,
+                amount: withdrawAmount,
+                status: 'Processing',
+                timestamp: Date.now()
+            });
+            availableBalance = 0; 
+            saveData();
+            renderWalletPage(); 
+            alert(`Withdrawal initiated for ₹${withdrawAmount.toFixed(2)}. Status set to 'Processing'.`);
+        });
+    }
+
+    function renderHomePage() {
+        // Stop timer if it's running
+        if (timerInterval) clearInterval(timerInterval); 
+        
+        mainContent.innerHTML = `
+            <div class="wallet-content-wrapper fade-in" style="padding: 0 15px;">
+                <div class="home-welcome-card">
+                    <h2>Welcome Back! 👋</h2>
+                    <p style="color: rgba(255,255,255,0.9); font-size: 1.05em; line-height: 1.4;">
+                        Your profile is active. Ready for new projects?
+                    </p>
+                    <div class="home-balance-display">
+                        <h4>CURRENT BALANCE</h4>
+                        <p id="homeBalance">₹${availableBalance.toFixed(2)}</p>
+                    </div>
+                </div>
+
+                <button onclick="document.querySelector('.nav-item[data-section=projects]').click()" class="home-cta-btn">
+                    <i class="fa-solid fa-bolt"></i> View Live Projects
+                </button>
+                
+                <div class="refer-card">
+                    <h3><i class="fa-solid fa-gift"></i> Refer & Earn ₹50</h3>
+                    <p>Invite your friends to Funngro and get a **₹50 bonus** when they complete their first project.</p>
+                    <button class="refer-btn" onclick="alert('Your referral link: FUNGRO-NITHIN2025. Share it now!');">
+                        SHARE INVITE LINK
+                    </button>
+                </div>
+                
+                <div class="project-section-header">
+                    QUICK ACTIONS
+                </div>
+                <div class="transaction-history-list" style="padding: 0;">
+                    <div class="transaction-item" onclick="document.querySelector('.nav-item[data-section=wallet]').click()">
+                        <span><i class="fa-solid fa-clock-rotate-left"></i> View Full History</span>
+                        <span class="amount" style="color: #ffca28;"><i class="fa-solid fa-chevron-right"></i></span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Render Admin Panel (Add Task)
+    function renderAdminPanel() {
+        // Stop timer if it's running
+        if (timerInterval) clearInterval(timerInterval); 
+        
+        const now = new Date();
+        const initialStart = datetimeToInputFormat(new Date(now.getTime() + 60000)); // Start in 1 minute
+        
+        mainContent.innerHTML = `
+            <div class="admin-form fade-in">
+                <h2><i class="fa-solid fa-screwdriver-wrench"></i> Admin: Project Control</h2>
+                <form id="addTaskForm">
+                    <div class="input-group">
+                        <label for="taskQuestion">Task Question/Description</label>
+                        <textarea id="taskQuestion" placeholder="e.g., 15 + 8 = OR Write a short summary" required></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label for="taskAnswer">Correct Answer (Numeric value for Math/Identifier for other)</label>
+                        <input type="text" id="taskAnswer" placeholder="e.g., 23 or COMPLETED" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="taskReward">Reward Amount (₹)</label>
+                        <input type="number" id="taskReward" step="0.01" min="1" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="taskStart">Upcoming Start Date & Time</label>
+                        <input type="datetime-local" id="taskStart" value="${initialStart}" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Live Duration (Sets Closing Time from Start Time)</label>
+                        <div style="display:flex; gap:10px;">
+                            <select id="liveHours" class="input-group-select" style="width: 50%;">
+                                <option value="0">0 hours</option>
+                                <option value="1">1 hour</option>
+                                <option value="2" selected>2 hours</option>
+                                <option value="4">4 hours</option>
+                                <option value="8">8 hours</option>
+                                <option value="12">12 hours</option>
+                                <option value="24">24 hours</option>
+                            </select>
+                            <select id="liveMinutes" class="input-group-select" style="width: 50%;">
+                                <option value="0">0 minutes</option>
+                                <option value="15">15 minutes</option>
+                                <option value="30">30 minutes</option>
+                                <option value="45">45 minutes</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="admin-submit-btn">ADD NEW PROJECT</button>
+                </form>
+            </div>
+        `;
+        
+        document.getElementById('addTaskForm').addEventListener('submit', handleAddTask);
+    }
+    
+    function handleAddTask(e) {
+        e.preventDefault();
+        
+        const question = document.getElementById('taskQuestion').value.trim();
+        const answer = document.getElementById('taskAnswer').value.trim();
+        const reward = parseFloat(document.getElementById('taskReward').value);
+        const taskStartInput = document.getElementById('taskStart').value;
+        const hours = parseInt(document.getElementById('liveHours').value);
+        const minutes = parseInt(document.getElementById('liveMinutes').value);
+        
+        if (!question || !answer || !reward || !taskStartInput) {
+            alert("Please fill all required fields.");
+            return;
+        }
+
+        const startDate = new Date(taskStartInput);
+        const endDate = new Date(startDate.getTime() + hours * 3600000 + minutes * 60000);
+        
+        if (endDate.getTime() <= startDate.getTime()) {
+            alert("Error: Live duration must be greater than zero.");
+            return;
+        }
+
+        const newTaskId = mathTasks.length > 0 ? Math.max(...mathTasks.map(t => t.id)) + 1 : 1;
+
+        const newTask = {
+            id: newTaskId,
+            Question: question,
+            Answer: answer,
+            Reward: reward,
+            start: startDate.getTime(), // Store as timestamp
+            end: endDate.getTime(),     // Store as timestamp
+            isCompleted: false,
+            submittedAnswer: '',
+        };
+
+        mathTasks.push(newTask);
+        saveData();
+        
+        document.getElementById('addTaskForm').reset();
+        
+        // Reset inputs to default state for next task
+        const now = new Date();
+        document.getElementById('taskStart').value = datetimeToInputFormat(new Date(now.getTime() + 60000));
+        document.getElementById('liveHours').value = '2';
+        document.getElementById('liveMinutes').value = '0';
+        
+        const status = checkTaskStatus(newTask);
+
+        // Switch to the relevant tab (Live or Upcoming) and re-render
+        if (status === 'Live' && activeProjectTab !== 'live') {
+            activeProjectTab = 'live'; 
+        } else if (status === 'Upcoming' && activeProjectTab !== 'upcoming') {
+            activeProjectTab = 'upcoming'; 
+        } else if (status === 'Closed' && activeProjectTab !== 'completed') {
+            // Note: The new task status is 'Closed' but we default to the 'Completed' tab view for clarity
+            activeProjectTab = 'completed'; 
+        }
+
+        renderTab('projects'); 
+        alert(`New Project Added! Status: ${capitalize(status)}. Reward: ₹${reward.toFixed(2)} (will be credited on correct completion).`);
+    }
+
+    // --- INITIALIZATION & EVENT LISTENERS ---
+    
+    // Attach event handlers for navigation
+    const renderTab = (tab) => {
+        updateHeaderTitle(tab);
+
+        // Reset nav states
+        navItems.forEach(i => i.classList.remove('active'));
+        bellBtn.classList.remove('active');
+        isBellActive = false;
+        
+        // Clear interval on tab switch away from projects
+        if (tab !== 'projects' && timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+
+        // Set active class for the current tab
+        const activeNavItem = document.querySelector(`.bottom-nav .nav-item[data-section="${tab}"]`);
+        if (activeNavItem) {
+             activeNavItem.classList.add('active');
+             if (['home', 'projects', 'wallet', 'more'].includes(tab)) {
+                 lastActiveTab = tab;
+             }
+        }
+       
+        // Ensure the correct rendering function is called on every tab click
+        if(tab === 'projects') {
+            renderProjectsDashboardStructure(); 
+        } else if(tab === 'home') {
+            renderHomePage();
+        } else if(tab === 'wallet') {
+            renderWalletPage();
+        } else if(tab === 'add') {
+             renderAdminPanel();
+        } else if(tab === 'more') {
+             mainContent.innerHTML = `<div class="fade-in" style="margin-top: 50px; text-align: center;"><h2 style="color:#ccc;">More Options</h2><p style="color:#7f8c8d;">Profile, Settings, Help Center</p></div>`;
+        } else if(tab === 'notifications') {
+             mainContent.innerHTML = `<div class="fade-in" style="margin-top: 50px; text-align: center;"><h2 style="color:#ff8a65;">Notifications</h2><p style="color:#7f8c8d;">No new notifications.</p></div>`;
+             bellBtn.classList.add('active');
+             isBellActive = true;
+        }
+    };
+
+    bellBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        renderTab(isBellActive ? lastActiveTab : 'notifications');
+    });
+    document.getElementById('profileBtn').addEventListener('click', (e) => { e.preventDefault(); renderTab('more'); });
+
+    navItems.forEach(item => {
+        item.addEventListener('click', e => {
+            e.preventDefault();
+            const section = item.getAttribute('data-section');
+            renderTab(section);
+        });
+    });
+
+    loadData();
+    renderTab('home'); 
+});
+</script>
+</body>
+</html>
