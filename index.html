@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MindMint Quiz Professional</title>
+<style>
+/* ====== General Styles ====== */
+body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(to right,#a1c4fd,#c2e9fb);display:flex;justify-content:center;align-items:center;min-height:100vh;}
+#gameContainer,#resultScreen,#rulesSection{display:none;width:700px;max-width:95%;background:#fff;border-radius:15px;box-shadow:0 8px 25px rgba(0,0,0,0.2);text-align:center;padding:20px;}
+#rulesSection{display:block;}
+#rulesSection ul{text-align:left;font-size:16px;}
+button{cursor:pointer;}
+.option{display:block;margin:10px auto;padding:12px;width:80%;border:none;border-radius:8px;font-size:18px;cursor:pointer;transition:.3s;background:#f1f1f1;box-shadow:0 2px 5px rgba(0,0,0,.1);}
+.option:hover{background:#d1e7ff;}
+.correct{background:#90ee90!important;}
+.wrong{background:#ff7f7f!important;}
+#timerDisplay{font-size:18px;font-weight:bold;color:#ff0000;margin-bottom:5px;}
+#timerBarContainer{width:100%;background:#ddd;height:8px;border-radius:4px;margin-bottom:10px;}
+#timerBar{height:100%;width:100%;background:green;border-radius:4px;transition:width linear;}
+#progressContainer{margin:10px 0;background:#f1f1f1;border-radius:10px;height:20px;width:100%;}
+#progressBar{height:100%;width:0;background:#4caf50;border-radius:10px;transition:width .3s;}
+#quizControls{margin-top:20px;display:flex;justify-content:center;gap:20px;}
+button.main{padding:10px 20px;font-size:18px;border:none;border-radius:10px;color:#fff;}
+#startBtn{background:green;} #stopBtn{background:red;display:none;}
+#withdrawBtn,#withdrawBtnResult{background:linear-gradient(90deg,#27ae60,#2ecc71);padding:10px 20px;border:none;border-radius:8px;color:#fff;}
+#heartsContainer{margin:10px 0;font-size:20px;font-weight:bold;}
+table{width:100%;border-collapse:collapse;margin-top:10px;max-height:150px;display:block;overflow-y:auto;}
+th,td{padding:8px;text-align:center;border:1px solid #ddd;font-size:14px;}
+th{background:#f2f2f2;}
+.status-success{color:green;font-weight:bold;}
+.status-failed{color:red;font-weight:bold;}
+.status-reverted{color:#ff9800;font-weight:bold;}
+
+/* Withdraw Modal */
+#withdrawModal{position:fixed;top:0;left:0;width:100%;height:100%;display:none;justify-content:center;align-items:center;z-index:9999;}
+#withdrawBackdrop{position:absolute;width:100%;height:100%;background:rgba(0,0,0,0.5);}
+.withdraw-container{width:350px;background:#fff;padding:20px;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.15);position:relative;z-index:10;}
+.withdraw-container h2{text-align:center;margin-bottom:15px;color:#333;}
+.form-group{margin-bottom:15px;text-align:left;}
+label{font-size:14px;font-weight:bold;display:block;margin-bottom:5px;color:#333;}
+input,select{width:100%;padding:10px;font-size:14px;border:1px solid #ccc;border-radius:8px;outline:none;}
+input:focus,select:focus{border-color:#27ae60;}
+.withdraw-container button{width:100%;background:linear-gradient(90deg,#27ae60,#2ecc71);border:none;padding:12px;color:white;font-size:16px;font-weight:bold;border-radius:8px;cursor:pointer;}
+#error-msg,#upi-error-msg{color:red;font-size:13px;margin-bottom:5px;}
+#withdrawStatus{font-size:14px;margin-bottom:5px;}
+#refundNotice{display:none;margin:8px 0;padding:10px;background:#e8f5e9;color:#2e7d32;font-weight:bold;border-radius:6px;text-align:center;}
+.upi-logos img{width:40px;margin:5px;vertical-align:middle;}
+
+/* Payment Modal */
+#paymentModal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.45);z-index:11000;justify-content:center;align-items:center;}
+#processingScreen,#successScreen{background:#fff;padding:26px 28px;border-radius:12px;text-align:center;box-shadow:0 12px 30px rgba(0,0,0,0.18);min-width:240px;}
+.spinner{width:60px;height:60px;border:6px solid #eee;border-top-color:#4CAF50;border-radius:50%;animation:spin 1s linear infinite;margin:6px auto 8px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.circle-stage{width:110px;height:110px;margin:6px auto;position:relative;display:flex;align-items:center;justify-content:center;}
+.inner-circle{position:relative;width:74%;height:74%;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#2ecc71;transform:scale(0.2);opacity:0;animation:innerPop 420ms cubic-bezier(.2,.9,.3,1) forwards;}
+@keyframes innerPop{0%{transform:scale(0.22);opacity:0;}60%{transform:scale(1.08);opacity:1;}100%{transform:scale(1);opacity:1;}}
+.check{width:56px;height:56px;display:block;}
+.check path{stroke:#ffffff;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;fill:none;stroke-dasharray:120;stroke-dashoffset:120;animation:drawCheck 520ms cubic-bezier(.2,.9,.3,1) forwards 120ms;}
+@keyframes drawCheck{from{stroke-dashoffset:120;}to{stroke-dashoffset:0;}}
+.success-text{font-size:18px;font-weight:600;color:#222;margin-top:8px;opacity:0;animation:fadeIn 420ms forwards 520ms;}
+@keyframes fadeIn{to{opacity:1;transform:none;}}
+
+/* Withdraw Fail Modal */
+#withdrawFailModal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.45);z-index:12000;justify-content:center;align-items:center;}
+.fail-card{background:#fff;border-radius:14px;padding:40px 32px;text-align:center;box-shadow:0 10px 30px rgba(20,30,60,0.08);width:92%;max-width:420px;position:relative;}
+.icon-wrap{position:relative;width:120px;height:120px;margin:0 auto 20px;}
+.ring{position:absolute;inset:0;border:4px dotted #e53935;border-radius:50%;animation:rotate 6s linear infinite;box-shadow:0 0 10px rgba(229,57,53,0.5);}
+@keyframes rotate{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+.dot{width:80px;height:80px;border-radius:50%;background:linear-gradient(180deg,#e53935,#c62828);position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;animation:pulse 2s infinite;box-shadow:0 6px 18px rgba(229,57,53,0.4);}
+@keyframes pulse{0%,100%{transform:translate(-50%,-50%) scale(1);}50%{transform:translate(-50%,-50%) scale(1.07);}}
+.dot svg{width:44px;height:44px;stroke:#fff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;fill:none;opacity:0;animation:crossIn .6s ease forwards .3s;}
+@keyframes crossIn{to{opacity:1;}}
+.fail-card h1{margin:10px 0 6px;font-size:24px;font-weight:600;color:#222;}
+.fail-card p{margin:0 auto 24px;font-size:15px;color:#666;max-width:320px;line-height:1.5;}
+.fail-card .buttons{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;}
+.fail-card button{min-width:120px;padding:10px 20px;border-radius:10px;border:1px solid transparent;cursor:pointer;font-size:15px;transition:.2s ease;}
+.btn-primary{background:linear-gradient(180deg,#3498db,#1e90ff);color:white;font-weight:600;box-shadow:0 6px 14px rgba(52,152,219,0.25);}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 20px rgba(52,152,219,0.35);}
+</style>
+</head>
+<body>
+
+<!-- Rules Section -->
+<div id="rulesSection">
+<h3>📜 MindMint Quiz Rules</h3>
+<ul>
+<li>Total Questions: 100 (ends earlier if 3 wrong answers)</li>
+<li>Time per question: 30 seconds</li>
+<li>Hearts: 3 ❤️</li>
+<li>Wrong answer: lose 1 heart</li>
+<li>Each correct answer: ₹10</li>
+<li>Max daily earning: ₹1000</li>
+</ul>
+<button id="nextRulesBtn">Next ➡️</button>
+</div>
+
+<!-- Game Container -->
+<div id="gameContainer">
+<div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+<div id="myEarnings">My Earnings: ₹25000</div>
+<button id="withdrawBtn">Withdraw</button>
+</div>
+<div id="heartsContainer">❤️❤️❤️</div>
+<div id="timerDisplay">Time: 30s</div>
+<div id="timerBarContainer"><div id="timerBar"></div></div>
+<div id="question">Ready?</div>
+<div id="options"></div>
+<div id="quizControls">
+<button id="startBtn" class="main">Start ✅</button>
+<button id="stopBtn" class="main">Stop ⏹️</button>
+</div>
+<div id="progressContainer"><div id="progressBar"></div></div>
+<div id="progressText">Remaining: 100 / 100</div>
+</div>
+
+<!-- Result Screen -->
+<div id="resultScreen">
+<h2>🎉 Great Effort!</h2>
+<p id="finalMsg"></p>
+<p id="finalEarn"></p>
+<button id="tryAgainBtn" class="main" style="background:orange;margin-top:10px;">Try Again 🔄</button>
+<button id="withdrawBtnResult" class="main" style="margin-top:10px;">Withdraw 💵</button>
+</div>
+
+<!-- Withdraw Modal -->
+<div id="withdrawModal">
+  <div id="withdrawBackdrop"></div>
+  <div class="withdraw-container">
+    <span style="position:absolute;top:10px;right:15px;font-size:24px;cursor:pointer;color:#f44336;" onclick="closeWithdraw()">×</span>
+    <h2>Withdraw</h2>
+    <div class="form-group"><strong id="withdrawEarnings">My Earnings: ₹25000</strong></div>
+    <div id="withdrawStatus"></div>
+    <div id="refundNotice"></div>
+    <div class="form-group">
+      <label>Enter Amount</label>
+      <input type="number" id="withdrawAmount" placeholder="Amount">
+      <div id="error-msg"></div>
+    </div>
+    <div class="form-group">
+      <label>Withdrawal Method</label>
+      <select id="method">
+        <option value="">Select Method</option>
+        <option value="upi">📱 UPI</option>
+        <option value="bank">🏦 Bank Transfer</option>
+      </select>
+    </div>
+    <div class="form-group" id="upi-section" style="display:none;">
+      <label>UPI Mobile Number</label>
+      <input type="text" id="upiNumber" placeholder="10-digit mobile">
+      <div id="upi-error-msg"></div>
+      <div class="upi-logos">
+        <img src="apple.png" alt="Apple Pay">
+        <img src="bhim.png" alt="BHIM">
+        <img src="googlepay.png" alt="Google Pay">
+        <img src="phonepe.png" alt="PhonePe">
+        <img src="paytm.png" alt="Paytm">
+      </div>
+    </div>
+    <div class="form-group" id="bank-section" style="display:none;">
+      <label>Bank Name</label>
+      <select id="bankName"></select>
+      <label>Account Number</label>
+      <input type="text" id="accountNumber" placeholder="Account Number">
+      <label>IFSC Code</label>
+      <input type="text" id="ifscCode" placeholder="Auto bank code + branch code">
+    </div>
+    <button onclick="processWithdraw()">Withdraw</button>
+    <div class="form-group">
+      <h3>Withdrawal History</h3>
+      <table id="withdrawHistory">
+        <thead><tr><th>Date</th><th>Time</th><th>Amount</th><th>Status</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Payment Modal -->
+<div id="paymentModal" aria-hidden="true">
+  <div id="processingScreen">
+    <div class="spinner"></div>
+    <p style="font-size:18px;font-weight:bold;margin-top:10px;">Processing...</p>
+  </div>
+  <div id="successScreen" style="display:none;">
+    <div class="circle-stage">
+      <div class="inner-circle">
+        <svg class="check" viewBox="0 0 52 52">
+          <path d="M14 27 L22 34 L38 16"></path>
+        </svg>
+      </div>
+    </div>
+    <div class="success-text">Payment Successful</div>
+  </div>
+</div>
+
+<!-- Withdraw Fail Modal -->
+<div id="withdrawFailModal">
+  <div class="fail-card">
+    <div class="icon-wrap">
+      <div class="ring"></div>
+      <div class="dot">
+        <svg viewBox="0 0 24 24"><path d="M6 6L18 18M6 18L18 6"/></svg>
+      </div>
+    </div>
+    <h1>Withdrawal Failed</h1>
+    <p>Your payment could not be processed. Please try again.</p>
+    <p id="refundCountdown" style="font-weight:bold;color:#e53935;margin-bottom:12px;"></p>
+    <div class="buttons" style="justify-content:center;">
+      <button class="btn-primary" onclick="retryWithdraw()">Retry</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ----------------- Bank IFSC ----------------
+const bankIFSC = {"State Bank of India":"SBIN0","Punjab National Bank":"PUNB0","Bank of Baroda":"BARB0","Canara Bank":"CNRB0","Union Bank of India":"UBIN0","HDFC Bank":"HDFC0","ICICI Bank":"ICIC0","Axis Bank":"UTIB0","Kotak Mahindra Bank":"KKBK0","IndusInd Bank":"INDB0","YES Bank":"YESB0","India Post Payments Bank":"IPOS0","Jio Payments Bank":"JIOP0"};
+const banks = Object.keys(bankIFSC);
+const bankSelect = document.getElementById("bankName");
+banks.forEach(b=>{let o=document.createElement("option"); o.value=b; o.textContent=b; bankSelect.appendChild(o);});
+
+// ----------------- Variables ----------------
+let health=3, questionCount=0, maxQuestions=100;
+let totalEarnings=25000, quizRunning=false, timer, timeLeft=30;
+let dailyWithdrawals=[];
+const heartsContainer=document.getElementById("heartsContainer");
+const myEarnings=document.getElementById("myEarnings");
+const questionDisplay=document.getElementById("question");
+const optionsDisplay=document.getElementById("options");
+const startBtn=document.getElementById("startBtn");
+const stopBtn=document.getElementById("stopBtn");
+const timerDisplay=document.getElementById("timerDisplay");
+const timerBar=document.getElementById("timerBar");
+const progressBar=document.getElementById("progressBar");
+const progressText=document.getElementById("progressText");
+
+// Refund timers
+const refundTimers={};
+
+// ----------------- Persistence ----------------
+function saveData(){localStorage.setItem("mindmint_quiz",JSON.stringify({totalEarnings,dailyWithdrawals}));}
+function loadData(){
+  const saved=localStorage.getItem("mindmint_quiz");
+  if(saved){const data=JSON.parse(saved);totalEarnings=data.totalEarnings||25000;dailyWithdrawals=data.dailyWithdrawals||[];}
+  myEarnings.textContent=`My Earnings: ₹${totalEarnings}`;
+  updateWithdrawHistoryUI();
+}
+loadData();
+
+// ----------------- Quiz Controls ----------------
+document.getElementById("nextRulesBtn").onclick=()=>{document.getElementById("rulesSection").style.display="none";document.getElementById("gameContainer").style.display="block";};
+startBtn.onclick=()=>{quizRunning=true;startBtn.style.display="none";stopBtn.style.display="inline-block";generateQuestion();};
+stopBtn.onclick=()=>endGame("Quiz Stopped!");
+
+// ----------------- Hearts & Progress ----------------
+function updateHearts(){heartsContainer.textContent="❤️".repeat(health);}
+function updateProgress(){progressBar.style.width=`${(questionCount/maxQuestions)*100}%`;progressText.textContent=`Remaining: ${maxQuestions-questionCount} / ${maxQuestions}`;}
+
+// ----------------- Questions ----------------
+const sampleQuestions=[
+  {q:"What is 2+2?",opts:["3","4","5","6"],ans:1},
+  {q:"Capital of India?",opts:["Delhi","Mumbai","Chennai","Kolkata"],ans:0},
+  {q:"Color of sky?",opts:["Blue","Red","Green","Yellow"],ans:0},
+  {q:"5*6=?",opts:["30","11","56","25"],ans:0},
+  {q:"Sun rises from?",opts:["West","North","East","South"],ans:2}
+];
+
+function generateQuestion(){
+  if(!quizRunning)return;
+  if(questionCount>=maxQuestions || health<=0){endGame("Quiz Completed!");return;}
+  const idx=Math.floor(Math.random()*sampleQuestions.length);
+  const qObj=sampleQuestions[idx];
+  questionDisplay.textContent=qObj.q;
+  optionsDisplay.innerHTML="";
+  qObj.opts.forEach((opt,i)=>{
+    const btn=document.createElement("button");
+    btn.className="option";
+    btn.textContent=opt;
+    btn.onclick=()=>checkAnswer(i,qObj.ans);
+    optionsDisplay.appendChild(btn);
+  });
+  questionCount++;
+  updateProgress();
+  startTimer();
+}
+
+// ----------------- Timer ----------------
+function startTimer(){
+  clearInterval(timer); timeLeft=30; timerDisplay.textContent=`Time: ${timeLeft}s`; timerBar.style.width="100%";
+  timer=setInterval(()=>{
+    timeLeft--;
+    timerDisplay.textContent=`Time: ${timeLeft}s`;
+    timerBar.style.width=`${(timeLeft/30)*100}%`;
+    if(timeLeft<=0){clearInterval(timer);loseHeart();}
+  },1000);
+}
+
+function loseHeart(){health--;updateHearts();if(health<=0){endGame("Game Over!");}else{generateQuestion();}}
+
+// ----------------- Check Answer ----------------
+function checkAnswer(selected,correct){
+  clearInterval(timer);
+  if(selected===correct){totalEarnings+=10;myEarnings.textContent=`My Earnings: ₹${totalEarnings}`;}else{loseHeart();}
+  generateQuestion();
+  saveData();
+}
+
+// ----------------- End Game ----------------
+function endGame(msg){
+  quizRunning=false; startBtn.style.display="inline-block"; stopBtn.style.display="none";
+  document.getElementById("gameContainer").style.display="none";
+  document.getElementById("resultScreen").style.display="block";
+  document.getElementById("finalMsg").textContent=msg;
+  document.getElementById("finalEarn").textContent=`Total Earnings: ₹${totalEarnings}`;
+}
+
+// ----------------- Try Again ----------------
+document.getElementById("tryAgainBtn").onclick=()=>{
+  health=3; questionCount=0; updateHearts(); updateProgress();
+  document.getElementById("resultScreen").style.display="none";
+  document.getElementById("gameContainer").style.display="block";
+};// ----------------- Withdraw Modal ----------------
+const withdrawModal = document.getElementById("withdrawModal");
+const methodSelect = document.getElementById("method");
+
+methodSelect.onchange = () => {
+  document.getElementById("upi-section").style.display = methodSelect.value === "upi" ? "block" : "none";
+  document.getElementById("bank-section").style.display = methodSelect.value === "bank" ? "block" : "none";
+};
+
+document.getElementById("withdrawBtn").onclick = () => { withdrawModal.style.display = "flex"; };
+document.getElementById("withdrawBtnResult").onclick = () => { withdrawModal.style.display = "flex"; };
+function closeWithdraw() { withdrawModal.style.display = "none"; }
+
+// ----------------- Withdrawal Logic ----------------
+function processWithdraw() {
+  const amt = parseInt(document.getElementById("withdrawAmount").value);
+  const upiNumber = document.getElementById("upiNumber").value.trim();
+  const method = methodSelect.value;
+
+  if (!amt || amt <= 0) { document.getElementById("error-msg").textContent = "Enter valid amount!"; return; }
+  if (amt > totalEarnings) { document.getElementById("error-msg").textContent = "Insufficient balance!"; return; }
+  if (dailyWithdrawals.length >= 50) { document.getElementById("error-msg").textContent = "Max 50 withdrawals per day!"; return; }
+  if (!method) { document.getElementById("error-msg").textContent = "Select method!"; return; }
+  if (method === "upi" && (!upiNumber || !/^\d{10}$/.test(upiNumber))) {
+    document.getElementById("upi-error-msg").textContent = "Enter valid 10-digit UPI mobile!";
+    return;
+  } else { document.getElementById("upi-error-msg").textContent = ""; }
+
+  document.getElementById("error-msg").textContent = "";
+  showPaymentModal(amt);
+}
+
+// ----------------- Payment Modal Simulation ----------------
+const paymentModal = document.getElementById("paymentModal");
+const processingScreen = document.getElementById("processingScreen");
+const successScreen = document.getElementById("successScreen");
+
+function showPaymentModal(amount) {
+  paymentModal.style.display = "flex";
+  processingScreen.style.display = "block";
+  successScreen.style.display = "none";
+
+  setTimeout(() => {
+    processingScreen.style.display = "none";
+    const success = Math.random() < 0.85; // 85% chance success
+    if (success) {
+      successScreen.style.display = "block";
+      totalEarnings -= amount;
+      myEarnings.textContent = `My Earnings: ₹${totalEarnings}`;
+      dailyWithdrawals.push({
+        date: new Date().toLocaleDateString(),
+        time: new Date().toLocaleTimeString(),
+        amount,
+        status: "Success"
+      });
+      saveData();
+      updateWithdrawHistoryUI();
+      setTimeout(() => { paymentModal.style.display = "none"; closeWithdraw(); }, 2000);
+    } else {
+      paymentModal.style.display = "none";
+      closeWithdraw();
+      showWithdrawFail(amount);
+    }
+  }, 2000);
+}
+
+// ----------------- Withdraw Fail ----------------
+const withdrawFailModal = document.getElementById("withdrawFailModal");
+let failTimer;
+
+function showWithdrawFail(amount) {
+  withdrawFailModal.style.display = "flex";
+  let seconds = 15;
+  document.getElementById("refundCountdown").textContent = `Refund in ${seconds}s`;
+
+  failTimer = setInterval(() => {
+    seconds--;
+    document.getElementById("refundCountdown").textContent = `Refund in ${seconds}s`;
+    if (seconds <= 0) {
+      clearInterval(failTimer);
+      withdrawFailModal.style.display = "none";
+      dailyWithdrawals.push({
+        date: new Date().toLocaleDateString(),
+        time: new Date().toLocaleTimeString(),
+        amount,
+        status: "Reverted"
+      });
+      totalEarnings += amount;
+      myEarnings.textContent = `My Earnings: ₹${totalEarnings}`;
+      saveData();
+      updateWithdrawHistoryUI();
+    }
+  }, 1000);
+}
+
+function retryWithdraw() {
+  withdrawFailModal.style.display = "none";
+  withdrawModal.style.display = "flex";
+}
+
+// ----------------- Withdraw History ----------------
+function updateWithdrawHistoryUI() {
+  const tbody = document.querySelector("#withdrawHistory tbody");
+  tbody.innerHTML = "";
+  dailyWithdrawals.slice(-50).forEach(w => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${w.date}</td><td>${w.time}</td><td>₹${w.amount}</td><td class="status-${w.status.toLowerCase()}">${w.status}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+</script>
+</body>
+</html>
