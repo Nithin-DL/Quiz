@@ -1,434 +1,1920 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MindMint Quiz Professional</title>
-<style>
-/* ====== General Styles ====== */
-body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(to right,#a1c4fd,#c2e9fb);display:flex;justify-content:center;align-items:center;min-height:100vh;}
-#gameContainer,#resultScreen,#rulesSection{display:none;width:700px;max-width:95%;background:#fff;border-radius:15px;box-shadow:0 8px 25px rgba(0,0,0,0.2);text-align:center;padding:20px;}
-#rulesSection{display:block;}
-#rulesSection ul{text-align:left;font-size:16px;}
-button{cursor:pointer;}
-.option{display:block;margin:10px auto;padding:12px;width:80%;border:none;border-radius:8px;font-size:18px;cursor:pointer;transition:.3s;background:#f1f1f1;box-shadow:0 2px 5px rgba(0,0,0,.1);}
-.option:hover{background:#d1e7ff;}
-.correct{background:#90ee90!important;}
-.wrong{background:#ff7f7f!important;}
-#timerDisplay{font-size:18px;font-weight:bold;color:#ff0000;margin-bottom:5px;}
-#timerBarContainer{width:100%;background:#ddd;height:8px;border-radius:4px;margin-bottom:10px;}
-#timerBar{height:100%;width:100%;background:green;border-radius:4px;transition:width linear;}
-#progressContainer{margin:10px 0;background:#f1f1f1;border-radius:10px;height:20px;width:100%;}
-#progressBar{height:100%;width:0;background:#4caf50;border-radius:10px;transition:width .3s;}
-#quizControls{margin-top:20px;display:flex;justify-content:center;gap:20px;}
-button.main{padding:10px 20px;font-size:18px;border:none;border-radius:10px;color:#fff;}
-#startBtn{background:green;} #stopBtn{background:red;display:none;}
-#withdrawBtn,#withdrawBtnResult{background:linear-gradient(90deg,#27ae60,#2ecc71);padding:10px 20px;border:none;border-radius:8px;color:#fff;}
-#heartsContainer{margin:10px 0;font-size:20px;font-weight:bold;}
-table{width:100%;border-collapse:collapse;margin-top:10px;max-height:150px;display:block;overflow-y:auto;}
-th,td{padding:8px;text-align:center;border:1px solid #ddd;font-size:14px;}
-th{background:#f2f2f2;}
-.status-success{color:green;font-weight:bold;}
-.status-failed{color:red;font-weight:bold;}
-.status-reverted{color:#ff9800;font-weight:bold;}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel Work Platform</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Global Styles */
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --success: #4cc9f0;
+            --info: #4895ef;
+            --warning: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --light-bg: #f0f2f5;
+            --gold: #ffd700;
+        }
 
-/* Withdraw Modal */
-#withdrawModal{position:fixed;top:0;left:0;width:100%;height:100%;display:none;justify-content:center;align-items:center;z-index:9999;}
-#withdrawBackdrop{position:absolute;width:100%;height:100%;background:rgba(0,0,0,0.5);}
-.withdraw-container{width:350px;background:#fff;padding:20px;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.15);position:relative;z-index:10;}
-.withdraw-container h2{text-align:center;margin-bottom:15px;color:#333;}
-.form-group{margin-bottom:15px;text-align:left;}
-label{font-size:14px;font-weight:bold;display:block;margin-bottom:5px;color:#333;}
-input,select{width:100%;padding:10px;font-size:14px;border:1px solid #ccc;border-radius:8px;outline:none;}
-input:focus,select:focus{border-color:#27ae60;}
-.withdraw-container button{width:100%;background:linear-gradient(90deg,#27ae60,#2ecc71);border:none;padding:12px;color:white;font-size:16px;font-weight:bold;border-radius:8px;cursor:pointer;}
-#error-msg,#upi-error-msg{color:red;font-size:13px;margin-bottom:5px;}
-#withdrawStatus{font-size:14px;margin-bottom:5px;}
-#refundNotice{display:none;margin:8px 0;padding:10px;background:#e8f5e9;color:#2e7d32;font-weight:bold;border-radius:6px;text-align:center;}
-.upi-logos img{width:40px;margin:5px;vertical-align:middle;}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-/* Payment Modal */
-#paymentModal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.45);z-index:11000;justify-content:center;align-items:center;}
-#processingScreen,#successScreen{background:#fff;padding:26px 28px;border-radius:12px;text-align:center;box-shadow:0 12px 30px rgba(0,0,0,0.18);min-width:240px;}
-.spinner{width:60px;height:60px;border:6px solid #eee;border-top-color:#4CAF50;border-radius:50%;animation:spin 1s linear infinite;margin:6px auto 8px;}
-@keyframes spin{to{transform:rotate(360deg);}}
-.circle-stage{width:110px;height:110px;margin:6px auto;position:relative;display:flex;align-items:center;justify-content:center;}
-.inner-circle{position:relative;width:74%;height:74%;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#2ecc71;transform:scale(0.2);opacity:0;animation:innerPop 420ms cubic-bezier(.2,.9,.3,1) forwards;}
-@keyframes innerPop{0%{transform:scale(0.22);opacity:0;}60%{transform:scale(1.08);opacity:1;}100%{transform:scale(1);opacity:1;}}
-.check{width:56px;height:56px;display:block;}
-.check path{stroke:#ffffff;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;fill:none;stroke-dasharray:120;stroke-dashoffset:120;animation:drawCheck 520ms cubic-bezier(.2,.9,.3,1) forwards 120ms;}
-@keyframes drawCheck{from{stroke-dashoffset:120;}to{stroke-dashoffset:0;}}
-.success-text{font-size:18px;font-weight:600;color:#222;margin-top:8px;opacity:0;animation:fadeIn 420ms forwards 520ms;}
-@keyframes fadeIn{to{opacity:1;transform:none;}}
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: var(--light-bg);
+            min-height: 100vh;
+        }
 
-/* Withdraw Fail Modal */
-#withdrawFailModal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.45);z-index:12000;justify-content:center;align-items:center;}
-.fail-card{background:#fff;border-radius:14px;padding:40px 32px;text-align:center;box-shadow:0 10px 30px rgba(20,30,60,0.08);width:92%;max-width:420px;position:relative;}
-.icon-wrap{position:relative;width:120px;height:120px;margin:0 auto 20px;}
-.ring{position:absolute;inset:0;border:4px dotted #e53935;border-radius:50%;animation:rotate 6s linear infinite;box-shadow:0 0 10px rgba(229,57,53,0.5);}
-@keyframes rotate{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
-.dot{width:80px;height:80px;border-radius:50%;background:linear-gradient(180deg,#e53935,#c62828);position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;animation:pulse 2s infinite;box-shadow:0 6px 18px rgba(229,57,53,0.4);}
-@keyframes pulse{0%,100%{transform:translate(-50%,-50%) scale(1);}50%{transform:translate(-50%,-50%) scale(1.07);}}
-.dot svg{width:44px;height:44px;stroke:#fff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;fill:none;opacity:0;animation:crossIn .6s ease forwards .3s;}
-@keyframes crossIn{to{opacity:1;}}
-.fail-card h1{margin:10px 0 6px;font-size:24px;font-weight:600;color:#222;}
-.fail-card p{margin:0 auto 24px;font-size:15px;color:#666;max-width:320px;line-height:1.5;}
-.fail-card .buttons{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;}
-.fail-card button{min-width:120px;padding:10px 20px;border-radius:10px;border:1px solid transparent;cursor:pointer;font-size:15px;transition:.2s ease;}
-.btn-primary{background:linear-gradient(180deg,#3498db,#1e90ff);color:white;font-weight:600;box-shadow:0 6px 14px rgba(52,152,219,0.25);}
-.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 20px rgba(52,152,219,0.35);}
-</style>
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 1.5rem 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon {
+            margin-right: 10px;
+            font-size: 2rem;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav ul li {
+            margin-left: 1.5rem;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        nav ul li a:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 4rem 0;
+            text-align: center;
+            background: white;
+            margin: 2rem auto;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+
+        .hero h1 {
+            font-size: 2.8rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--gray);
+            max-width: 700px;
+            margin: 0 auto 2rem;
+        }
+
+        /* Floating Action Buttons */
+        .floating-buttons {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 100;
+        }
+
+        .floating-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .floating-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .floating-btn.whatsapp {
+            background: linear-gradient(135deg, #25D366, #128C7E);
+        }
+
+        .floating-btn.payment {
+            background: linear-gradient(135deg, var(--gold), #FFA500);
+        }
+
+        .floating-btn.scanner {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+
+        .floating-btn .tooltip {
+            position: absolute;
+            right: 70px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .floating-btn:hover .tooltip {
+            opacity: 1;
+        }
+
+        /* Payment Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transform: translateY(20px);
+            transition: transform 0.3s;
+            overflow: hidden;
+        }
+
+        .modal-overlay.active .modal {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 1.5rem;
+            position: relative;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .payment-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 1.5rem 0;
+        }
+
+        .payment-option {
+            background: var(--light-bg);
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .payment-option:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .payment-option.active {
+            border-color: var(--primary);
+            background: rgba(67, 97, 238, 0.1);
+        }
+
+        .payment-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        .payment-amount {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .payment-desc {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin-top: 5px;
+        }
+
+        .custom-amount {
+            margin: 1.5rem 0;
+        }
+
+        .custom-amount input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .custom-amount input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        }
+
+        .payment-total {
+            display: flex;
+            justify-content: space-between;
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: var(--light-bg);
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .payment-total .amount {
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+
+        /* Scanner Modal */
+        .scanner-container {
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        .scanner-placeholder {
+            width: 100%;
+            height: 300px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1.5rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .scanner-placeholder::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 4px;
+            background: var(--primary);
+            animation: scan 2s infinite linear;
+        }
+
+        @keyframes scan {
+            0% { top: 0; }
+            50% { top: 100%; }
+            100% { top: 0; }
+        }
+
+        .scanner-placeholder i {
+            font-size: 4rem;
+            color: var(--gray);
+        }
+
+        .qr-code {
+            width: 200px;
+            height: 200px;
+            background: white;
+            margin: 0 auto;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem;
+            color: var(--dark);
+        }
+
+        /* WhatsApp Modal */
+        .whatsapp-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin: 1.5rem 0;
+        }
+
+        .whatsapp-option {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background: var(--light-bg);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .whatsapp-option:hover {
+            background: rgba(37, 211, 102, 0.1);
+            transform: translateX(5px);
+        }
+
+        .whatsapp-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #25D366;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            margin-right: 15px;
+        }
+
+        .whatsapp-info h3 {
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+
+        .whatsapp-info p {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Services Section */
+        .services {
+            padding: 3rem 0;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+            font-size: 2.2rem;
+            color: var(--dark);
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 2px;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .service-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border-top: 4px solid var(--primary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .service-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .service-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .service-card h3 {
+            margin-bottom: 1rem;
+            color: var(--dark);
+        }
+
+        .service-card p {
+            color: var(--gray);
+        }
+
+        /* Upload Section */
+        .upload-section {
+            background: white;
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            margin: 2rem auto;
+            max-width: 900px;
+            position: relative;
+        }
+
+        .upload-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 15px 15px 0 0;
+        }
+
+        .upload-area {
+            border: 2px dashed #ddd;
+            border-radius: 12px;
+            padding: 3rem;
+            text-align: center;
+            margin: 2rem 0;
+            transition: border-color 0.3s;
+            cursor: pointer;
+            background: var(--light-bg);
+        }
+
+        .upload-area.active {
+            border-color: var(--primary);
+            background: rgba(67, 97, 238, 0.05);
+        }
+
+        .upload-area i {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .upload-area p {
+            color: var(--gray);
+        }
+
+        .file-list {
+            margin-top: 1.5rem;
+            display: none;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background: var(--light-bg);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .file-icon {
+            font-size: 1.5rem;
+            margin-right: 10px;
+            color: var(--primary);
+        }
+
+        .file-details {
+            text-align: left;
+        }
+
+        .file-name {
+            font-weight: 600;
+        }
+
+        .file-size {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .file-remove {
+            color: var(--warning);
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .upload-preview {
+            margin-top: 2rem;
+            display: none;
+        }
+
+        .preview-title {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: var(--dark);
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.5rem;
+        }
+
+        .preview-content {
+            background: var(--light-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .preview-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .preview-table th, .preview-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .preview-table th {
+            background: var(--primary);
+            color: white;
+        }
+
+        .preview-table tr:nth-child(even) {
+            background: rgba(67, 97, 238, 0.05);
+        }
+
+        .stats-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            margin-top: 1.5rem;
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+        }
+
+        .stat-item {
+            padding: 0 1rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Status Section */
+        .status-section {
+            background: white;
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            margin: 2rem auto;
+            max-width: 900px;
+            position: relative;
+        }
+
+        .status-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 15px 15px 0 0;
+        }
+
+        .status-tracker {
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        .tracker-line {
+            position: absolute;
+            top: 30px;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: #e9ecef;
+            z-index: 1;
+        }
+
+        .tracker-line-progress {
+            position: absolute;
+            top: 30px;
+            left: 0;
+            width: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            z-index: 2;
+            transition: width 0.5s ease;
+        }
+
+        .tracker-steps {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            z-index: 3;
+        }
+
+        .tracker-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 25%;
+        }
+
+        .step-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: white;
+            border: 4px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .step-icon.active {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+            animation: pulse 2s infinite;
+        }
+
+        .step-icon.completed {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+        }
+
+        .step-label {
+            font-weight: 600;
+            color: var(--gray);
+            text-align: center;
+        }
+
+        .step-label.active {
+            color: var(--primary);
+        }
+
+        .status-details {
+            background: var(--light-bg);
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-top: 2rem;
+        }
+
+        .status-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .status-message {
+            text-align: center;
+            font-size: 1.2rem;
+            margin: 2rem 0;
+            padding: 1rem;
+            border-radius: 8px;
+            background: rgba(67, 97, 238, 0.1);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .blink {
+            animation: blink 1.5s infinite;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--primary);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+            text-align: center;
+            gap: 8px;
+            box-shadow: 0 4px 6px rgba(67, 97, 238, 0.2);
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 7px 14px rgba(67, 97, 238, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
+
+        .btn-success {
+            background: var(--success);
+            box-shadow: 0 4px 6px rgba(76, 201, 240, 0.2);
+        }
+
+        .btn-success:hover {
+            background: #3ab8dd;
+            box-shadow: 0 7px 14px rgba(76, 201, 240, 0.3);
+        }
+
+        .btn-info {
+            background: var(--info);
+            box-shadow: 0 4px 6px rgba(72, 149, 239, 0.2);
+        }
+
+        .btn-info:hover {
+            background: #3a87e0;
+            box-shadow: 0 7px 14px rgba(72, 149, 239, 0.3);
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            box-shadow: 0 4px 6px rgba(247, 37, 133, 0.2);
+        }
+
+        .btn-warning:hover {
+            background: #e01e75;
+            box-shadow: 0 7px 14px rgba(247, 37, 133, 0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            box-shadow: none;
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* Success Message */
+        .success-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 1000;
+            transform: translateX(150%);
+            transition: transform 0.5s ease;
+            border-left: 5px solid var(--success);
+        }
+
+        .success-message.show {
+            transform: translateX(0);
+        }
+
+        .success-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--success);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .success-content h3 {
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+
+        .success-content p {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 2rem 0;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(67, 97, 238, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(67, 97, 238, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(67, 97, 238, 0);
+            }
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        }
+
+        /* Utility Classes */
+        .text-center {
+            text-align: center;
+        }
+
+        .text-success {
+            color: var(--success);
+        }
+
+        .text-warning {
+            color: var(--warning);
+        }
+
+        .text-danger {
+            color: var(--warning);
+        }
+
+        .mt-1 { margin-top: 1rem; }
+        .mt-2 { margin-top: 2rem; }
+        .mt-3 { margin-top: 3rem; }
+        .mb-1 { margin-bottom: 1rem; }
+        .mb-2 { margin-bottom: 2rem; }
+        .mb-3 { margin-bottom: 3rem; }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            nav ul {
+                margin-top: 1rem;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            nav ul li {
+                margin: 0.25rem;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+
+            .upload-section, .status-section {
+                padding: 1.5rem;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .task-table {
+                font-size: 0.9rem;
+            }
+
+            .task-table th, .task-table td {
+                padding: 0.5rem;
+            }
+
+            .tracker-steps {
+                flex-wrap: wrap;
+            }
+
+            .tracker-step {
+                width: 50%;
+                margin-bottom: 1.5rem;
+            }
+
+            .tracker-line, .tracker-line-progress {
+                display: none;
+            }
+
+            .payment-options {
+                grid-template-columns: 1fr;
+            }
+
+            .floating-buttons {
+                bottom: 20px;
+                right: 20px;
+            }
+
+            .floating-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+        }
+    </style>
 </head>
 <body>
+    <!-- Header -->
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <span class="logo-icon">📊</span>
+                <span>Excel Work Platform</span>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#" onclick="showSection('home')"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="#" onclick="showSection('upload')"><i class="fas fa-upload"></i> Upload</a></li>
+                    <li><a href="#" onclick="showSection('status')"><i class="fas fa-tasks"></i> Track</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
 
-<!-- Rules Section -->
-<div id="rulesSection">
-<h3>📜 MindMint Quiz Rules</h3>
-<ul>
-<li>Total Questions: 100 (ends earlier if 3 wrong answers)</li>
-<li>Time per question: 30 seconds</li>
-<li>Hearts: 3 ❤️</li>
-<li>Wrong answer: lose 1 heart</li>
-<li>Each correct answer: ₹10</li>
-<li>Max daily earning: ₹1000</li>
-</ul>
-<button id="nextRulesBtn">Next ➡️</button>
-</div>
-
-<!-- Game Container -->
-<div id="gameContainer">
-<div style="display:flex;justify-content:space-between;margin-bottom:10px;">
-<div id="myEarnings">My Earnings: ₹25000</div>
-<button id="withdrawBtn">Withdraw</button>
-</div>
-<div id="heartsContainer">❤️❤️❤️</div>
-<div id="timerDisplay">Time: 30s</div>
-<div id="timerBarContainer"><div id="timerBar"></div></div>
-<div id="question">Ready?</div>
-<div id="options"></div>
-<div id="quizControls">
-<button id="startBtn" class="main">Start ✅</button>
-<button id="stopBtn" class="main">Stop ⏹️</button>
-</div>
-<div id="progressContainer"><div id="progressBar"></div></div>
-<div id="progressText">Remaining: 100 / 100</div>
-</div>
-
-<!-- Result Screen -->
-<div id="resultScreen">
-<h2>🎉 Great Effort!</h2>
-<p id="finalMsg"></p>
-<p id="finalEarn"></p>
-<button id="tryAgainBtn" class="main" style="background:orange;margin-top:10px;">Try Again 🔄</button>
-<button id="withdrawBtnResult" class="main" style="margin-top:10px;">Withdraw 💵</button>
-</div>
-
-<!-- Withdraw Modal -->
-<div id="withdrawModal">
-  <div id="withdrawBackdrop"></div>
-  <div class="withdraw-container">
-    <span style="position:absolute;top:10px;right:15px;font-size:24px;cursor:pointer;color:#f44336;" onclick="closeWithdraw()">×</span>
-    <h2>Withdraw</h2>
-    <div class="form-group"><strong id="withdrawEarnings">My Earnings: ₹25000</strong></div>
-    <div id="withdrawStatus"></div>
-    <div id="refundNotice"></div>
-    <div class="form-group">
-      <label>Enter Amount</label>
-      <input type="number" id="withdrawAmount" placeholder="Amount">
-      <div id="error-msg"></div>
+    <!-- Floating Action Buttons -->
+    <div class="floating-buttons">
+        <div class="floating-btn whatsapp" onclick="openModal('whatsappModal')">
+            <i class="fab fa-whatsapp"></i>
+            <div class="tooltip">Join WhatsApp Group</div>
+        </div>
+        <div class="floating-btn payment" onclick="openModal('paymentModal')">
+            <i class="fas fa-dollar-sign"></i>
+            <div class="tooltip">Pay for Service</div>
+        </div>
+        <div class="floating-btn scanner" onclick="openModal('scannerModal')">
+            <i class="fas fa-qrcode"></i>
+            <div class="tooltip">Scan QR Code</div>
+        </div>
     </div>
-    <div class="form-group">
-      <label>Withdrawal Method</label>
-      <select id="method">
-        <option value="">Select Method</option>
-        <option value="upi">📱 UPI</option>
-        <option value="bank">🏦 Bank Transfer</option>
-      </select>
+
+    <!-- Payment Modal -->
+    <div class="modal-overlay" id="paymentModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2><i class="fas fa-dollar-sign"></i> Payment Options</h2>
+                <button class="modal-close" onclick="closeModal('paymentModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Choose an amount to pay for the service. Your payment helps us deliver better quality work.</p>
+                
+                <div class="payment-options">
+                    <div class="payment-option" onclick="selectPaymentOption(this, 10)">
+                        <div class="payment-icon"><i class="fas fa-coffee"></i></div>
+                        <div class="payment-amount">$10</div>
+                        <div class="payment-desc">Basic Support</div>
+                    </div>
+                    <div class="payment-option" onclick="selectPaymentOption(this, 25)">
+                        <div class="payment-icon"><i class="fas fa-star"></i></div>
+                        <div class="payment-amount">$25</div>
+                        <div class="payment-desc">Standard Service</div>
+                    </div>
+                    <div class="payment-option" onclick="selectPaymentOption(this, 50)">
+                        <div class="payment-icon"><i class="fas fa-crown"></i></div>
+                        <div class="payment-amount">$50</div>
+                        <div class="payment-desc">Premium Support</div>
+                    </div>
+                    <div class="payment-option" onclick="selectPaymentOption(this, 100)">
+                        <div class="payment-icon"><i class="fas fa-gem"></i></div>
+                        <div class="payment-amount">$100</div>
+                        <div class="payment-desc">VIP Treatment</div>
+                    </div>
+                </div>
+                
+                <div class="custom-amount">
+                    <label for="customAmount">Or enter custom amount:</label>
+                    <input type="number" id="customAmount" placeholder="Enter amount in USD" min="1" oninput="updateCustomAmount(this.value)">
+                </div>
+                
+                <div class="payment-total">
+                    <span>Total to Pay:</span>
+                    <span class="amount" id="totalAmount">$0</span>
+                </div>
+                
+                <button class="btn btn-block btn-success" onclick="processPayment()">
+                    <i class="fas fa-lock"></i> Pay Securely
+                </button>
+            </div>
+        </div>
     </div>
-    <div class="form-group" id="upi-section" style="display:none;">
-      <label>UPI Mobile Number</label>
-      <input type="text" id="upiNumber" placeholder="10-digit mobile">
-      <div id="upi-error-msg"></div>
-      <div class="upi-logos">
-        <img src="apple.png" alt="Apple Pay">
-        <img src="bhim.png" alt="BHIM">
-        <img src="googlepay.png" alt="Google Pay">
-        <img src="phonepe.png" alt="PhonePe">
-        <img src="paytm.png" alt="Paytm">
-      </div>
+
+    <!-- Scanner Modal -->
+    <div class="modal-overlay" id="scannerModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2><i class="fas fa-qrcode"></i> QR Code Scanner</h2>
+                <button class="modal-close" onclick="closeModal('scannerModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="scanner-container">
+                    <p>Scan the QR code to make payment or join our community</p>
+                    
+                    <div class="scanner-placeholder">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                    
+                    <p>Or use this static QR code:</p>
+                    
+                    <div class="qr-code">
+                        <i class="fas fa-qrcode"></i>
+                    </div>
+                    
+                    <p class="mt-2">Point your camera at the QR code to scan</p>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="form-group" id="bank-section" style="display:none;">
-      <label>Bank Name</label>
-      <select id="bankName"></select>
-      <label>Account Number</label>
-      <input type="text" id="accountNumber" placeholder="Account Number">
-      <label>IFSC Code</label>
-      <input type="text" id="ifscCode" placeholder="Auto bank code + branch code">
+
+    <!-- WhatsApp Modal -->
+    <div class="modal-overlay" id="whatsappModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2><i class="fab fa-whatsapp"></i> Join Our Community</h2>
+                <button class="modal-close" onclick="closeModal('whatsappModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Join our WhatsApp groups to get updates, support, and connect with other users.</p>
+                
+                <div class="whatsapp-options">
+                    <div class="whatsapp-option" onclick="joinWhatsApp('support')">
+                        <div class="whatsapp-icon">
+                            <i class="fab fa-whatsapp"></i>
+                        </div>
+                        <div class="whatsapp-info">
+                            <h3>Customer Support</h3>
+                            <p>Get help with your Excel tasks and projects</p>
+                        </div>
+                    </div>
+                    
+                    <div class="whatsapp-option" onclick="joinWhatsApp('updates')">
+                        <div class="whatsapp-icon">
+                            <i class="fab fa-whatsapp"></i>
+                        </div>
+                        <div class="whatsapp-info">
+                            <h3>Updates & News</h3>
+                            <p>Stay informed about new features and services</p>
+                        </div>
+                    </div>
+                    
+                    <div class="whatsapp-option" onclick="joinWhatsApp('community')">
+                        <div class="whatsapp-icon">
+                            <i class="fab fa-whatsapp"></i>
+                        </div>
+                        <div class="whatsapp-info">
+                            <h3>User Community</h3>
+                            <p>Connect with other Excel users and share tips</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="btn btn-block btn-success" onclick="joinWhatsApp('all')">
+                    <i class="fab fa-whatsapp"></i> Join All Groups
+                </button>
+            </div>
+        </div>
     </div>
-    <button onclick="processWithdraw()">Withdraw</button>
-    <div class="form-group">
-      <h3>Withdrawal History</h3>
-      <table id="withdrawHistory">
-        <thead><tr><th>Date</th><th>Time</th><th>Amount</th><th>Status</th></tr></thead>
-        <tbody></tbody>
-      </table>
+
+    <!-- Success Message -->
+    <div class="success-message" id="successMessage">
+        <div class="success-icon">
+            <i class="fas fa-check"></i>
+        </div>
+        <div class="success-content">
+            <h3>File Uploaded Successfully!</h3>
+            <p>Your files have been submitted for processing.</p>
+        </div>
     </div>
-  </div>
-</div>
 
-<!-- Payment Modal -->
-<div id="paymentModal" aria-hidden="true">
-  <div id="processingScreen">
-    <div class="spinner"></div>
-    <p style="font-size:18px;font-weight:bold;margin-top:10px;">Processing...</p>
-  </div>
-  <div id="successScreen" style="display:none;">
-    <div class="circle-stage">
-      <div class="inner-circle">
-        <svg class="check" viewBox="0 0 52 52">
-          <path d="M14 27 L22 34 L38 16"></path>
-        </svg>
-      </div>
-    </div>
-    <div class="success-text">Payment Successful</div>
-  </div>
-</div>
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Home Section -->
+        <section id="home" class="section">
+            <div class="hero">
+                <h1>Professional Excel Services</h1>
+                <p>We provide expert Excel solutions including data cleaning, automation, analysis, and custom reporting to streamline your workflow.</p>
+                <div class="action-buttons">
+                    <a href="#" class="btn" onclick="showSection('upload')"><i class="fas fa-upload"></i> Upload Your Files</a>
+                    <a href="#" class="btn btn-outline" onclick="showSection('status')"><i class="fas fa-tasks"></i> Track Your Tasks</a>
+                </div>
+            </div>
 
-<!-- Withdraw Fail Modal -->
-<div id="withdrawFailModal">
-  <div class="fail-card">
-    <div class="icon-wrap">
-      <div class="ring"></div>
-      <div class="dot">
-        <svg viewBox="0 0 24 24"><path d="M6 6L18 18M6 18L18 6"/></svg>
-      </div>
-    </div>
-    <h1>Withdrawal Failed</h1>
-    <p>Your payment could not be processed. Please try again.</p>
-    <p id="refundCountdown" style="font-weight:bold;color:#e53935;margin-bottom:12px;"></p>
-    <div class="buttons" style="justify-content:center;">
-      <button class="btn-primary" onclick="retryWithdraw()">Retry</button>
-    </div>
-  </div>
-</div>
+            <div class="services">
+                <h2 class="section-title">Our Services</h2>
+                <div class="services-grid">
+                    <div class="service-card">
+                        <div class="service-icon">🧹</div>
+                        <h3>Data Cleaning</h3>
+                        <p>Remove duplicates, fix formatting issues, standardize data, and prepare your spreadsheets for analysis.</p>
+                    </div>
+                    <div class="service-card">
+                        <div class="service-icon">⚙️</div>
+                        <h3>Automation</h3>
+                        <p>Create macros and VBA scripts to automate repetitive tasks and improve efficiency.</p>
+                    </div>
+                    <div class="service-card">
+                        <div class="service-icon">📈</div>
+                        <h3>Analysis & Dashboard</h3>
+                        <p>Transform your data into meaningful insights with interactive dashboards and visualizations.</p>
+                    </div>
+                    <div class="service-card">
+                        <div class="service-icon">📄</div>
+                        <h3>Reporting & PDF Export</h3>
+                        <p>Generate professional reports and export them to PDF format for easy sharing.</p>
+                    </div>
+                    <div class="service-card">
+                        <div class="service-icon">📋</div>
+                        <h3>Custom Templates</h3>
+                        <p>Design personalized Excel templates tailored to your specific business needs.</p>
+                    </div>
+                    <div class="service-card">
+                        <div class="service-icon">🔧</div>
+                        <h3>Consultation</h3>
+                        <p>Get expert advice on Excel best practices, formula optimization, and data management.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-<script>
-// ----------------- Bank IFSC ----------------
-const bankIFSC = {"State Bank of India":"SBIN0","Punjab National Bank":"PUNB0","Bank of Baroda":"BARB0","Canara Bank":"CNRB0","Union Bank of India":"UBIN0","HDFC Bank":"HDFC0","ICICI Bank":"ICIC0","Axis Bank":"UTIB0","Kotak Mahindra Bank":"KKBK0","IndusInd Bank":"INDB0","YES Bank":"YESB0","India Post Payments Bank":"IPOS0","Jio Payments Bank":"JIOP0"};
-const banks = Object.keys(bankIFSC);
-const bankSelect = document.getElementById("bankName");
-banks.forEach(b=>{let o=document.createElement("option"); o.value=b; o.textContent=b; bankSelect.appendChild(o);});
+        <!-- Upload Section -->
+        <section id="upload" class="section" style="display: none;">
+            <div class="upload-section">
+                <h2 class="section-title">Upload Your Excel Files</h2>
+                <p class="text-center mb-3">Submit multiple Excel files and requirements for processing</p>
 
-// ----------------- Variables ----------------
-let health=3, questionCount=0, maxQuestions=100;
-let totalEarnings=25000, quizRunning=false, timer, timeLeft=30;
-let dailyWithdrawals=[];
-const heartsContainer=document.getElementById("heartsContainer");
-const myEarnings=document.getElementById("myEarnings");
-const questionDisplay=document.getElementById("question");
-const optionsDisplay=document.getElementById("options");
-const startBtn=document.getElementById("startBtn");
-const stopBtn=document.getElementById("stopBtn");
-const timerDisplay=document.getElementById("timerDisplay");
-const timerBar=document.getElementById("timerBar");
-const progressBar=document.getElementById("progressBar");
-const progressText=document.getElementById("progressText");
+                <form id="uploadForm">
+                    <div class="form-group">
+                        <label for="name"><i class="fas fa-user"></i> Full Name</label>
+                        <input type="text" id="name" class="form-control" placeholder="Enter your full name" required>
+                    </div>
 
-// Refund timers
-const refundTimers={};
+                    <div class="form-group">
+                        <label for="email"><i class="fas fa-envelope"></i> Email Address</label>
+                        <input type="email" id="email" class="form-control" placeholder="Enter your email" required>
+                    </div>
 
-// ----------------- Persistence ----------------
-function saveData(){localStorage.setItem("mindmint_quiz",JSON.stringify({totalEarnings,dailyWithdrawals}));}
-function loadData(){
-  const saved=localStorage.getItem("mindmint_quiz");
-  if(saved){const data=JSON.parse(saved);totalEarnings=data.totalEarnings||25000;dailyWithdrawals=data.dailyWithdrawals||[];}
-  myEarnings.textContent=`My Earnings: ₹${totalEarnings}`;
-  updateWithdrawHistoryUI();
-}
-loadData();
+                    <div class="form-group">
+                        <label for="phone"><i class="fas fa-phone"></i> Phone Number (WhatsApp)</label>
+                        <input type="tel" id="phone" class="form-control" placeholder="Enter your phone number">
+                    </div>
 
-// ----------------- Quiz Controls ----------------
-document.getElementById("nextRulesBtn").onclick=()=>{document.getElementById("rulesSection").style.display="none";document.getElementById("gameContainer").style.display="block";};
-startBtn.onclick=()=>{quizRunning=true;startBtn.style.display="none";stopBtn.style.display="inline-block";generateQuestion();};
-stopBtn.onclick=()=>endGame("Quiz Stopped!");
+                    <div class="form-group">
+                        <label for="service"><i class="fas fa-cogs"></i> Select Service</label>
+                        <select id="service" class="form-control" required>
+                            <option value="">Choose a service</option>
+                            <option value="Data Cleaning">Data Cleaning</option>
+                            <option value="Automation">Automation (Macros / VBA)</option>
+                            <option value="Analysis">Analysis / Dashboard</option>
+                            <option value="Reporting">Reporting / PDF Export</option>
+                            <option value="Custom">Custom Templates</option>
+                        </select>
+                    </div>
 
-// ----------------- Hearts & Progress ----------------
-function updateHearts(){heartsContainer.textContent="❤️".repeat(health);}
-function updateProgress(){progressBar.style.width=`${(questionCount/maxQuestions)*100}%`;progressText.textContent=`Remaining: ${maxQuestions-questionCount} / ${maxQuestions}`;}
+                    <div class="form-group">
+                        <label for="description"><i class="fas fa-file-alt"></i> Task Description</label>
+                        <textarea id="description" class="form-control" rows="4" placeholder="Describe what you need to be done with your Excel files"></textarea>
+                    </div>
 
-// ----------------- Questions ----------------
-const sampleQuestions=[
-  {q:"What is 2+2?",opts:["3","4","5","6"],ans:1},
-  {q:"Capital of India?",opts:["Delhi","Mumbai","Chennai","Kolkata"],ans:0},
-  {q:"Color of sky?",opts:["Blue","Red","Green","Yellow"],ans:0},
-  {q:"5*6=?",opts:["30","11","56","25"],ans:0},
-  {q:"Sun rises from?",opts:["West","North","East","South"],ans:2}
-];
+                    <div class="form-group">
+                        <label><i class="fas fa-file-excel"></i> Upload Excel Files</label>
+                        <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <h3>Click to upload or drag and drop</h3>
+                            <p>XLS, XLSX files (Max. 10MB each)</p>
+                            <input type="file" id="fileInput" accept=".xls,.xlsx" multiple style="display: none;" onchange="handleFileSelect(this)">
+                        </div>
+                        <div id="fileList" class="file-list">
+                            <!-- Files will be listed here -->
+                        </div>
+                    </div>
 
-function generateQuestion(){
-  if(!quizRunning)return;
-  if(questionCount>=maxQuestions || health<=0){endGame("Quiz Completed!");return;}
-  const idx=Math.floor(Math.random()*sampleQuestions.length);
-  const qObj=sampleQuestions[idx];
-  questionDisplay.textContent=qObj.q;
-  optionsDisplay.innerHTML="";
-  qObj.opts.forEach((opt,i)=>{
-    const btn=document.createElement("button");
-    btn.className="option";
-    btn.textContent=opt;
-    btn.onclick=()=>checkAnswer(i,qObj.ans);
-    optionsDisplay.appendChild(btn);
-  });
-  questionCount++;
-  updateProgress();
-  startTimer();
-}
+                    <div id="uploadPreview" class="upload-preview">
+                        <h3 class="preview-title"><i class="fas fa-eye"></i> File Preview</h3>
+                        <div class="preview-content">
+                            <table class="preview-table" id="previewTable">
+                                <!-- Preview content will be added here -->
+                            </table>
+                        </div>
+                        <div class="stats-card">
+                            <div class="stat-item">
+                                <div class="stat-value" id="totalRows">0</div>
+                                <div class="stat-label">Total Rows</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="totalColumns">0</div>
+                                <div class="stat-label">Total Columns</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="fileSize">0 KB</div>
+                                <div class="stat-label">File Size</div>
+                            </div>
+                        </div>
+                    </div>
 
-// ----------------- Timer ----------------
-function startTimer(){
-  clearInterval(timer); timeLeft=30; timerDisplay.textContent=`Time: ${timeLeft}s`; timerBar.style.width="100%";
-  timer=setInterval(()=>{
-    timeLeft--;
-    timerDisplay.textContent=`Time: ${timeLeft}s`;
-    timerBar.style.width=`${(timeLeft/30)*100}%`;
-    if(timeLeft<=0){clearInterval(timer);loseHeart();}
-  },1000);
-}
+                    <div class="form-group">
+                        <label><i class="fas fa-dollar-sign"></i> Payment (Optional)</label>
+                        <div class="text-center">
+                            <p>Support our work with a payment. Your contribution helps us deliver better quality service.</p>
+                            <button type="button" class="btn btn-outline" onclick="openModal('paymentModal')">
+                                <i class="fas fa-gift"></i> Add Payment
+                            </button>
+                        </div>
+                    </div>
 
-function loseHeart(){health--;updateHearts();if(health<=0){endGame("Game Over!");}else{generateQuestion();}}
+                    <button type="submit" class="btn btn-block"><i class="fas fa-paper-plane"></i> Submit Task</button>
+                </form>
 
-// ----------------- Check Answer ----------------
-function checkAnswer(selected,correct){
-  clearInterval(timer);
-  if(selected===correct){totalEarnings+=10;myEarnings.textContent=`My Earnings: ₹${totalEarnings}`;}else{loseHeart();}
-  generateQuestion();
-  saveData();
-}
+                <div class="text-center mt-2">
+                    <a href="#" class="btn btn-outline" onclick="showSection('home')"><i class="fas fa-arrow-left"></i> Back to Home</a>
+                </div>
+            </div>
+        </section>
 
-// ----------------- End Game ----------------
-function endGame(msg){
-  quizRunning=false; startBtn.style.display="inline-block"; stopBtn.style.display="none";
-  document.getElementById("gameContainer").style.display="none";
-  document.getElementById("resultScreen").style.display="block";
-  document.getElementById("finalMsg").textContent=msg;
-  document.getElementById("finalEarn").textContent=`Total Earnings: ₹${totalEarnings}`;
-}
+        <!-- Status Section -->
+        <section id="status" class="section" style="display: none;">
+            <div class="status-section">
+                <h2 class="section-title">Track Your Task Status</h2>
+                <p class="text-center mb-3">Enter your Task ID to check the status of your submission</p>
 
-// ----------------- Try Again ----------------
-document.getElementById("tryAgainBtn").onclick=()=>{
-  health=3; questionCount=0; updateHearts(); updateProgress();
-  document.getElementById("resultScreen").style.display="none";
-  document.getElementById("gameContainer").style.display="block";
-};// ----------------- Withdraw Modal ----------------
-const withdrawModal = document.getElementById("withdrawModal");
-const methodSelect = document.getElementById("method");
+                <form id="statusForm">
+                    <div class="form-group">
+                        <label for="taskId"><i class="fas fa-tasks"></i> Task ID</label>
+                        <input type="text" id="taskId" class="form-control" placeholder="Enter your Task ID" required>
+                    </div>
+                    <button type="submit" class="btn btn-block"><i class="fas fa-search"></i> Check Status</button>
+                </form>
 
-methodSelect.onchange = () => {
-  document.getElementById("upi-section").style.display = methodSelect.value === "upi" ? "block" : "none";
-  document.getElementById("bank-section").style.display = methodSelect.value === "bank" ? "block" : "none";
-};
+                <div class="status-tracker" id="statusTracker" style="display: none;">
+                    <div class="tracker-line"></div>
+                    <div class="tracker-line-progress" id="trackerProgress"></div>
+                    <div class="tracker-steps">
+                        <div class="tracker-step">
+                            <div class="step-icon completed" id="step1"><i class="fas fa-upload"></i></div>
+                            <div class="step-label">File Uploaded</div>
+                        </div>
+                        <div class="tracker-step">
+                            <div class="step-icon" id="step2"><i class="fas fa-cog"></i></div>
+                            <div class="step-label">Processing</div>
+                        </div>
+                        <div class="tracker-step">
+                            <div class="step-icon" id="step3"><i class="fas fa-check-circle"></i></div>
+                            <div class="step-label">Quality Check</div>
+                        </div>
+                        <div class="tracker-step">
+                            <div class="step-icon" id="step4"><i class="fas fa-download"></i></div>
+                            <div class="step-label">Completed</div>
+                        </div>
+                    </div>
+                </div>
 
-document.getElementById("withdrawBtn").onclick = () => { withdrawModal.style.display = "flex"; };
-document.getElementById("withdrawBtnResult").onclick = () => { withdrawModal.style.display = "flex"; };
-function closeWithdraw() { withdrawModal.style.display = "none"; }
+                <div class="status-message blink" id="statusMessage" style="display: none;">
+                    <i class="fas fa-sync-alt"></i> Your file is processing and will be completed soon!
+                </div>
 
-// ----------------- Withdrawal Logic ----------------
-function processWithdraw() {
-  const amt = parseInt(document.getElementById("withdrawAmount").value);
-  const upiNumber = document.getElementById("upiNumber").value.trim();
-  const method = methodSelect.value;
+                <div id="statusDetails" class="status-details" style="display: none;">
+                    <div class="status-info">
+                        <div><strong>Task ID:</strong> <span id="detailId"></span></div>
+                        <div><strong>Service:</strong> <span id="detailService"></span></div>
+                    </div>
+                    <div class="status-info">
+                        <div><strong>Submitted:</strong> <span id="detailSubmitted"></span></div>
+                        <div><strong>Estimated Completion:</strong> <span id="detailCompletion"></span></div>
+                    </div>
+                    <div class="text-center mt-2">
+                        <button class="btn btn-success" id="downloadBtn" style="display: none;"><i class="fas fa-download"></i> Download Processed Files</button>
+                    </div>
+                </div>
 
-  if (!amt || amt <= 0) { document.getElementById("error-msg").textContent = "Enter valid amount!"; return; }
-  if (amt > totalEarnings) { document.getElementById("error-msg").textContent = "Insufficient balance!"; return; }
-  if (dailyWithdrawals.length >= 50) { document.getElementById("error-msg").textContent = "Max 50 withdrawals per day!"; return; }
-  if (!method) { document.getElementById("error-msg").textContent = "Select method!"; return; }
-  if (method === "upi" && (!upiNumber || !/^\d{10}$/.test(upiNumber))) {
-    document.getElementById("upi-error-msg").textContent = "Enter valid 10-digit UPI mobile!";
-    return;
-  } else { document.getElementById("upi-error-msg").textContent = ""; }
+                <div class="text-center mt-2">
+                    <a href="#" class="btn btn-outline" onclick="showSection('home')"><i class="fas fa-arrow-left"></i> Back to Home</a>
+                </div>
+            </div>
+        </section>
+    </main>
 
-  document.getElementById("error-msg").textContent = "";
-  showPaymentModal(amt);
-}
+    <!-- Footer -->
+    <footer>
+        <div class="container footer-content">
+            <div class="copyright">
+                &copy; 2023 Excel Work Platform. All rights reserved.
+            </div>
+            <div class="footer-links">
+                <a href="#"><i class="fas fa-shield-alt"></i> Privacy Policy</a>
+                <a href="#"><i class="fas fa-file-contract"></i> Terms of Service</a>
+                <a href="#"><i class="fas fa-envelope"></i> Contact Us</a>
+            </div>
+        </div>
+    </footer>
 
-// ----------------- Payment Modal Simulation ----------------
-const paymentModal = document.getElementById("paymentModal");
-const processingScreen = document.getElementById("processingScreen");
-const successScreen = document.getElementById("successScreen");
+    <script>
+        // Sample data for demonstration
+        let tasks = [
+            {
+                id: 'TASK-001',
+                name: 'John Doe',
+                email: 'john@example.com',
+                phone: '+1234567890',
+                service: 'Data Cleaning',
+                files: ['sales_data.xlsx', 'customer_list.xlsx'],
+                status: 'Completed',
+                submitted: '2023-10-15',
+                completed: '2023-10-16',
+                lines: 1250,
+                progress: 100
+            },
+            {
+                id: 'TASK-002',
+                name: 'Jane Smith',
+                email: 'jane@example.com',
+                phone: '+1234567891',
+                service: 'Automation',
+                files: ['monthly_report.xlsx'],
+                status: 'In Progress',
+                submitted: '2023-10-16',
+                completed: null,
+                lines: 850,
+                progress: 60
+            },
+            {
+                id: 'TASK-003',
+                name: 'Robert Johnson',
+                email: 'robert@example.com',
+                phone: '+1234567892',
+                service: 'Analysis',
+                files: ['financial_data.xlsx', 'budget_2023.xlsx'],
+                status: 'Pending',
+                submitted: '2023-10-17',
+                completed: null,
+                lines: 2100,
+                progress: 0
+            }
+        ];
 
-function showPaymentModal(amount) {
-  paymentModal.style.display = "flex";
-  processingScreen.style.display = "block";
-  successScreen.style.display = "none";
+        let uploadedFiles = [];
+        let selectedPaymentAmount = 0;
 
-  setTimeout(() => {
-    processingScreen.style.display = "none";
-    const success = Math.random() < 0.85; // 85% chance success
-    if (success) {
-      successScreen.style.display = "block";
-      totalEarnings -= amount;
-      myEarnings.textContent = `My Earnings: ₹${totalEarnings}`;
-      dailyWithdrawals.push({
-        date: new Date().toLocaleDateString(),
-        time: new Date().toLocaleTimeString(),
-        amount,
-        status: "Success"
-      });
-      saveData();
-      updateWithdrawHistoryUI();
-      setTimeout(() => { paymentModal.style.display = "none"; closeWithdraw(); }, 2000);
-    } else {
-      paymentModal.style.display = "none";
-      closeWithdraw();
-      showWithdrawFail(amount);
-    }
-  }, 2000);
-}
+        // Show specific section and hide others
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.style.display = 'none';
+            });
+            document.getElementById(sectionId).style.display = 'block';
+        }
 
-// ----------------- Withdraw Fail ----------------
-const withdrawFailModal = document.getElementById("withdrawFailModal");
-let failTimer;
+        // Modal functions
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
 
-function showWithdrawFail(amount) {
-  withdrawFailModal.style.display = "flex";
-  let seconds = 15;
-  document.getElementById("refundCountdown").textContent = `Refund in ${seconds}s`;
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
 
-  failTimer = setInterval(() => {
-    seconds--;
-    document.getElementById("refundCountdown").textContent = `Refund in ${seconds}s`;
-    if (seconds <= 0) {
-      clearInterval(failTimer);
-      withdrawFailModal.style.display = "none";
-      dailyWithdrawals.push({
-        date: new Date().toLocaleDateString(),
-        time: new Date().toLocaleTimeString(),
-        amount,
-        status: "Reverted"
-      });
-      totalEarnings += amount;
-      myEarnings.textContent = `My Earnings: ₹${totalEarnings}`;
-      saveData();
-      updateWithdrawHistoryUI();
-    }
-  }, 1000);
-}
+        // Payment functions
+        function selectPaymentOption(element, amount) {
+            // Remove active class from all options
+            document.querySelectorAll('.payment-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            
+            // Add active class to selected option
+            element.classList.add('active');
+            
+            // Update selected amount
+            selectedPaymentAmount = amount;
+            updateTotalAmount();
+            
+            // Clear custom amount
+            document.getElementById('customAmount').value = '';
+        }
 
-function retryWithdraw() {
-  withdrawFailModal.style.display = "none";
-  withdrawModal.style.display = "flex";
-}
+        function updateCustomAmount(amount) {
+            if (amount && amount > 0) {
+                selectedPaymentAmount = parseInt(amount);
+                updateTotalAmount();
+                
+                // Remove active class from all options
+                document.querySelectorAll('.payment-option').forEach(option => {
+                    option.classList.remove('active');
+                });
+            }
+        }
 
-// ----------------- Withdraw History ----------------
-function updateWithdrawHistoryUI() {
-  const tbody = document.querySelector("#withdrawHistory tbody");
-  tbody.innerHTML = "";
-  dailyWithdrawals.slice(-50).forEach(w => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${w.date}</td><td>${w.time}</td><td>₹${w.amount}</td><td class="status-${w.status.toLowerCase()}">${w.status}</td>`;
-    tbody.appendChild(tr);
-  });
-}
-</script>
+        function updateTotalAmount() {
+            document.getElementById('totalAmount').textContent = '$' + selectedPaymentAmount;
+        }
+
+        function processPayment() {
+            if (selectedPaymentAmount > 0) {
+                alert(`Payment of $${selectedPaymentAmount} processed successfully! Thank you for your support.`);
+                closeModal('paymentModal');
+            } else {
+                alert('Please select or enter a payment amount.');
+            }
+        }
+
+        // WhatsApp functions
+        function joinWhatsApp(group) {
+            const groups = {
+                'support': 'Customer Support Group',
+                'updates': 'Updates & News Group', 
+                'community': 'User Community Group',
+                'all': 'All Groups'
+            };
+            
+            alert(`You've joined our ${groups[group]} on WhatsApp! We'll send you the invitation link.`);
+            closeModal('whatsappModal');
+        }
+
+        // File handling functions
+        function handleFileSelect(input) {
+            if (input.files && input.files.length > 0) {
+                const fileList = document.getElementById('fileList');
+                fileList.innerHTML = '';
+                fileList.style.display = 'block';
+                
+                uploadedFiles = Array.from(input.files);
+                
+                uploadedFiles.forEach((file, index) => {
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'file-item';
+                    fileItem.innerHTML = `
+                        <div class="file-info">
+                            <div class="file-icon"><i class="fas fa-file-excel"></i></div>
+                            <div class="file-details">
+                                <div class="file-name">${file.name}</div>
+                                <div class="file-size">${formatFileSize(file.size)}</div>
+                            </div>
+                        </div>
+                        <div class="file-remove" onclick="removeFile(${index})">
+                            <i class="fas fa-times"></i>
+                        </div>
+                    `;
+                    fileList.appendChild(fileItem);
+                });
+                
+                // Show preview for the first file
+                if (uploadedFiles.length > 0) {
+                    showFilePreview(uploadedFiles[0]);
+                }
+                
+                // Add active class to upload area
+                document.getElementById('uploadArea').classList.add('active');
+            }
+        }
+
+        function removeFile(index) {
+            uploadedFiles.splice(index, 1);
+            
+            // Update file list display
+            const fileList = document.getElementById('fileList');
+            fileList.innerHTML = '';
+            
+            if (uploadedFiles.length > 0) {
+                uploadedFiles.forEach((file, idx) => {
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'file-item';
+                    fileItem.innerHTML = `
+                        <div class="file-info">
+                            <div class="file-icon"><i class="fas fa-file-excel"></i></div>
+                            <div class="file-details">
+                                <div class="file-name">${file.name}</div>
+                                <div class="file-size">${formatFileSize(file.size)}</div>
+                            </div>
+                        </div>
+                        <div class="file-remove" onclick="removeFile(${idx})">
+                            <i class="fas fa-times"></i>
+                        </div>
+                    `;
+                    fileList.appendChild(fileItem);
+                });
+                
+                // Show preview for the first file
+                showFilePreview(uploadedFiles[0]);
+            } else {
+                fileList.style.display = 'none';
+                document.getElementById('uploadArea').classList.remove('active');
+                document.getElementById('uploadPreview').style.display = 'none';
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function showFilePreview(file) {
+            const preview = document.getElementById('uploadPreview');
+            const table = document.getElementById('previewTable');
+            
+            // Show preview section
+            preview.style.display = 'block';
+            
+            // Generate random data for preview
+            const headers = ['Customer', 'Shipping', 'Payment', 'Confirm', 'Status'];
+            const rows = [];
+            
+            for (let i = 0; i < 10; i++) {
+                const row = [
+                    `Customer ${i+1}`,
+                    `Shipping ${i+1}`,
+                    `Payment ${i+1}`,
+                    `Confirm ${i+1}`,
+                    Math.random() > 0.5 ? 'Completed' : 'Pending'
+                ];
+                rows.push(row);
+            }
+            
+            // Build table HTML
+            let tableHTML = '<thead><tr>';
+            headers.forEach(header => {
+                tableHTML += `<th>${header}</th>`;
+            });
+            tableHTML += '</tr></thead><tbody>';
+            
+            rows.forEach(row => {
+                tableHTML += '<tr>';
+                row.forEach(cell => {
+                    tableHTML += `<td>${cell}</td>`;
+                });
+                tableHTML += '</tr>';
+            });
+            
+            tableHTML += '</tbody>';
+            table.innerHTML = tableHTML;
+            
+            // Update stats
+            document.getElementById('totalRows').textContent = Math.floor(Math.random() * 1000) + 500;
+            document.getElementById('totalColumns').textContent = headers.length;
+            document.getElementById('fileSize').textContent = formatFileSize(file.size);
+        }
+
+        // Show success message
+        function showSuccessMessage() {
+            const message = document.getElementById('successMessage');
+            message.classList.add('show');
+            
+            setTimeout(() => {
+                message.classList.remove('show');
+            }, 5000);
+        }
+
+        // Handle upload form submission
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const service = document.getElementById('service').value;
+            const description = document.getElementById('description').value;
+            
+            if (uploadedFiles.length === 0) {
+                alert('Please select at least one file to upload');
+                return;
+            }
+            
+            // Generate a unique task ID
+            const taskId = 'TASK-' + Math.floor(1000 + Math.random() * 9000);
+            
+            // Calculate total lines (simulated)
+            const totalLines = uploadedFiles.reduce((total, file) => {
+                return total + Math.floor(Math.random() * 1000) + 500;
+            }, 0);
+            
+            // Create new task object
+            const newTask = {
+                id: taskId,
+                name: name,
+                email: email,
+                phone: phone,
+                service: service,
+                files: uploadedFiles.map(file => file.name),
+                status: 'Pending',
+                submitted: new Date().toISOString().split('T')[0],
+                completed: null,
+                lines: totalLines,
+                progress: 0
+            };
+            
+            // Add to tasks array
+            tasks.push(newTask);
+            
+            // Show success message
+            showSuccessMessage();
+            
+            // Reset form
+            this.reset();
+            document.getElementById('fileList').style.display = 'none';
+            document.getElementById('uploadPreview').style.display = 'none';
+            document.getElementById('uploadArea').classList.remove('active');
+            uploadedFiles = [];
+            
+            // Redirect to status page
+            showSection('status');
+            document.getElementById('taskId').value = taskId;
+            checkTaskStatus();
+        });
+
+        // Handle status form submission
+        document.getElementById('statusForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            checkTaskStatus();
+        });
+
+        // Check task status
+        function checkTaskStatus() {
+            const taskId = document.getElementById('taskId').value;
+            const task = tasks.find(t => t.id === taskId);
+            
+            const statusTracker = document.getElementById('statusTracker');
+            const statusMessage = document.getElementById('statusMessage');
+            const statusDetails = document.getElementById('statusDetails');
+            const downloadBtn = document.getElementById('downloadBtn');
+            
+            if (task) {
+                // Show tracker and details
+                statusTracker.style.display = 'block';
+                statusDetails.style.display = 'block';
+                
+                // Update tracker based on status
+                updateTracker(task);
+                
+                // Update details
+                document.getElementById('detailId').textContent = task.id;
+                document.getElementById('detailService').textContent = task.service;
+                document.getElementById('detailSubmitted').textContent = task.submitted;
+                
+                // Set estimated completion
+                const completionDate = new Date(task.submitted);
+                completionDate.setDate(completionDate.getDate() + 2);
+                document.getElementById('detailCompletion').textContent = completionDate.toISOString().split('T')[0];
+                
+                // Show/hide status message based on progress
+                if (task.status === 'In Progress') {
+                    statusMessage.style.display = 'block';
+                } else {
+                    statusMessage.style.display = 'none';
+                }
+                
+                // Show download button if completed
+                if (task.status === 'Completed') {
+                    downloadBtn.style.display = 'inline-block';
+                } else {
+                    downloadBtn.style.display = 'none';
+                }
+            } else {
+                alert('No task found with the provided ID. Please check and try again.');
+            }
+        }
+
+        // Update tracker based on task status
+        function updateTracker(task) {
+            const progress = document.getElementById('trackerProgress');
+            const step1 = document.getElementById('step1');
+            const step2 = document.getElementById('step2');
+            const step3 = document.getElementById('step3');
+            const step4 = document.getElementById('step4');
+            
+            // Reset all steps
+            step1.className = 'step-icon';
+            step2.className = 'step-icon';
+            step3.className = 'step-icon';
+            step4.className = 'step-icon';
+            
+            // Set progress based on task status
+            if (task.status === 'Pending') {
+                progress.style.width = '25%';
+                step1.className = 'step-icon completed';
+            } else if (task.status === 'In Progress') {
+                progress.style.width = '50%';
+                step1.className = 'step-icon completed';
+                step2.className = 'step-icon active';
+            } else if (task.status === 'Quality Check') {
+                progress.style.width = '75%';
+                step1.className = 'step-icon completed';
+                step2.className = 'step-icon completed';
+                step3.className = 'step-icon active';
+            } else if (task.status === 'Completed') {
+                progress.style.width = '100%';
+                step1.className = 'step-icon completed';
+                step2.className = 'step-icon completed';
+                step3.className = 'step-icon completed';
+                step4.className = 'step-icon completed';
+            }
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Show home section by default
+            showSection('home');
+            
+            // Set up drag and drop for file upload
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+            
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('active');
+            });
+            
+            uploadArea.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                if (!this.contains(e.relatedTarget)) {
+                    this.classList.remove('active');
+                }
+            });
+            
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('active');
+                
+                if (e.dataTransfer.files.length) {
+                    fileInput.files = e.dataTransfer.files;
+                    handleFileSelect(fileInput);
+                }
+            });
+        });
+    </script>
 </body>
-</html>
+                          </html>
