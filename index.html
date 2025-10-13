@@ -8,7 +8,258 @@
     <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
     <script src="https://unpkg.com/file-saver@2.0.5/dist/FileSaver.min.js"></script>
     <style>
-        /* General Reset and Base */
+        /* ===== AUTHENTICATION FORM STYLES ===== */
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            background: linear-gradient(135deg, #FFCA28 0%, #FFA000 100%);
+        }
+
+        .auth-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            padding: 30px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .form-toggle {
+            display: flex;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 12px;
+            background: none;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            color: #718096;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .toggle-btn.active {
+            color: #FFA000;
+        }
+
+        .toggle-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: #FFA000;
+            border-radius: 3px 3px 0 0;
+        }
+
+        .auth-title {
+            color: #2d3748;
+            margin-bottom: 8px;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .auth-subtitle {
+            color: #718096;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px 45px 14px 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s;
+            background: #f8fafc;
+        }
+
+        .input-group input:focus {
+            border-color: #FFA000;
+            background: white;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255, 160, 0, 0.1);
+        }
+
+        .input-group input.valid {
+            border-color: #48bb78;
+            box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.1);
+        }
+
+        .input-group input.invalid {
+            border-color: #e53e3e;
+            box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.1);
+        }
+
+        .input-icon {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #a0aec0;
+            font-size: 16px;
+            transition: color 0.3s;
+        }
+
+        .input-group input.valid + .input-icon {
+            color: #48bb78;
+        }
+
+        .input-group input.invalid + .input-icon {
+            color: #e53e3e;
+        }
+
+        .password-toggle {
+            cursor: pointer;
+        }
+
+        .password-toggle:hover {
+            color: #FFA000;
+        }
+
+        .password-strength {
+            margin-top: 10px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .password-strength.show {
+            max-height: 50px;
+        }
+
+        .strength-meter {
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            margin-bottom: 8px;
+            overflow: hidden;
+        }
+
+        .strength-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .strength-text {
+            font-size: 12px;
+            font-weight: 600;
+            text-align: left;
+        }
+
+        .strength-text.weak {
+            color: #e53e3e;
+        }
+
+        .strength-text.moderate {
+            color: #d97706;
+        }
+
+        .strength-text.strong {
+            color: #059669;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            gap: 10px;
+            font-size: 14px;
+            color: #4a5568;
+        }
+
+        .checkbox-group input {
+            accent-color: #FFA000;
+        }
+
+        .auth-btn {
+            width: 100%;
+            padding: 14px;
+            background: #FFA000;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 5px;
+        }
+
+        .auth-btn:hover {
+            background: #FF8F00;
+            transform: translateY(-1px);
+        }
+
+        .auth-btn:active {
+            transform: translateY(0);
+        }
+
+        .auth-btn:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .switch-link {
+            margin-top: 20px;
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .switch-link a {
+            color: #FFA000;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .switch-link a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            font-size: 12px;
+            color: #e53e3e;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        /* ===== TASK MANAGEMENT SYSTEM STYLES ===== */
         * {
             margin: 0;
             padding: 0;
@@ -34,7 +285,6 @@
             transition: all 0.3s ease;
         }
 
-        /* Header and Buttons */
         .header {
             background: #FFA000;
             color: white;
@@ -243,6 +493,77 @@
             font-weight: 500;
         }
 
+        /* ===== USER APPROVAL STATS STYLES ===== */
+        .user-approval-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .user-stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .user-stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .user-stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            color: white;
+        }
+
+        .user-stat-info {
+            flex: 1;
+        }
+
+        .user-stat-value {
+            display: block;
+            font-size: 1.8em;
+            font-weight: bold;
+            line-height: 1;
+            margin-bottom: 5px;
+        }
+
+        .user-stat-label {
+            font-size: 0.9em;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .user-approval-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #F44336;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
         /* ===== LOADING STATES ===== */
         .loading-overlay {
             position: fixed;
@@ -277,28 +598,6 @@
             100% { transform: rotate(360deg); }
         }
 
-        .skeleton-loader {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
-            border-radius: 4px;
-        }
-
-        @keyframes loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-
-        .skeleton-table-row td {
-            padding: 12px;
-        }
-
-        .skeleton-table-row .skeleton-loader {
-            height: 20px;
-            margin: 4px 0;
-        }
-
-        /* Content and Table */
         .content {
             padding: 30px;
         }
@@ -369,30 +668,6 @@
             border-bottom: 2px solid #e2e8f0;
             white-space: nowrap;
             cursor: pointer;
-        }
-        
-        thead th.sortable:after {
-            content: '';
-            display: inline-block;
-            width: 0;
-            height: 0;
-            margin-left: 5px;
-            vertical-align: middle;
-            border-top: 4px solid transparent;
-            border-bottom: 4px solid transparent;
-            border-left: 4px solid #FF8F00;
-            opacity: 0.5;
-            transition: transform 0.2s;
-        }
-
-        thead th.sortable.asc:after {
-            transform: rotate(90deg);
-            opacity: 1;
-        }
-
-        thead th.sortable.desc:after {
-            transform: rotate(-90deg);
-            opacity: 1;
         }
 
         tbody tr {
@@ -489,24 +764,6 @@
             position: relative;
         }
 
-        .task-card.free-task {
-            background: #FFF3E0;
-            border-left: 4px solid #FFB300;
-        }
-
-        .task-card.free-task::after {
-            content: "FREE";
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(-30deg);
-            font-size: 4em;
-            font-weight: bold;
-            color: rgba(255, 179, 0, 0.1);
-            pointer-events: none;
-            z-index: 1;
-        }
-
         .task-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
@@ -519,12 +776,6 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            position: relative;
-            z-index: 2;
-        }
-
-        .task-card.free-task .card-header {
-            background: #FFECB3;
         }
 
         .card-title {
@@ -534,14 +785,8 @@
             margin-bottom: 5px;
         }
 
-        .task-card.free-task .card-title {
-            color: #FF8F00;
-        }
-
         .card-body {
             padding: 15px;
-            position: relative;
-            z-index: 2;
         }
 
         .card-field {
@@ -557,17 +802,9 @@
             flex-shrink: 0;
         }
 
-        .task-card.free-task .card-label {
-            color: #FF8F00;
-        }
-
         .card-value {
             flex-grow: 1;
             color: #333;
-        }
-
-        .task-card.free-task .card-value {
-            color: #E65100;
         }
 
         .card-footer {
@@ -577,12 +814,6 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            position: relative;
-            z-index: 2;
-        }
-
-        .task-card.free-task .card-footer {
-            background: #FFF3E0;
         }
 
         .card-actions {
@@ -713,6 +944,17 @@
         }
 
         .form-group.error .error-message {
+            display: block;
+        }
+
+        .form-error {
+            color: #F44336;
+            font-size: 0.85em;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .form-error.active {
             display: block;
         }
 
@@ -911,7 +1153,6 @@
                 page-break-after: always;
             }
 
-            /* Styles for the print content */
             .print-slip-header {
                 text-align: center;
                 margin-bottom: 20px;
@@ -1245,15 +1486,38 @@
             font-size: 1em;
         }
 
-        /* NEW STYLES FOR USER APPROVAL SYSTEM */
-        .user-actions {
+        /* User Details Styles */
+        .user-details-container {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .user-detail-item {
+            padding: 10px 15px;
+            border-bottom: 1px solid #eee;
             display: flex;
-            gap: 5px;
+            justify-content: space-between;
+        }
+        
+        .user-detail-item:last-child {
+            border-bottom: none;
+        }
+        
+        .user-detail-label {
+            font-weight: bold;
+            color: #666;
+        }
+        
+        .user-detail-value {
+            color: #333;
         }
 
         .pending-approvals {
             background: #FFF3E0;
             border-left: 4px solid #FF9800;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
         }
 
         .pending-approvals h3 {
@@ -1264,375 +1528,464 @@
     </style>
 </head>
 <body>
-    <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="spinner"></div>
-        <div id="loadingMessage">Loading...</div>
+    <!-- Authentication Section -->
+    <div id="authSection" class="auth-container">
+        <div class="auth-card">
+            <div class="form-toggle">
+                <button class="toggle-btn active" data-form="signin">Sign In</button>
+                <button class="toggle-btn" data-form="signup">Sign Up</button>
+            </div>
+
+            <!-- Sign In Form -->
+            <form id="signinForm" class="auth-form active">
+                <h1 class="auth-title">Welcome Back</h1>
+                <p class="auth-subtitle">Sign in to your account</p>
+                
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <input type="email" id="signinEmail" placeholder="Email address" required>
+                        <span class="input-icon">
+                            <i class="fas fa-envelope"></i>
+                        </span>
+                    </div>
+                    <div class="error-message" id="signinEmailError">Please enter a valid email address</div>
+                </div>
+                
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <input type="password" id="signinPassword" placeholder="Password" required>
+                        <span class="input-icon password-toggle" id="toggleSigninPassword">
+                            <i class="fas fa-eye"></i>
+                        </span>
+                    </div>
+                    <div class="error-message" id="signinPasswordError">Please enter your password</div>
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="remember">
+                    <label for="remember">Remember me</label>
+                </div>
+                
+                <button type="submit" class="auth-btn">
+                    Sign In
+                </button>
+
+                <p class="switch-link">
+                    Don't have an account? <a id="showSignUp">Sign up</a>
+                </p>
+            </form>
+
+            <!-- Sign Up Form -->
+            <form id="signupForm" class="auth-form">
+                <h1 class="auth-title">Create Account</h1>
+                <p class="auth-subtitle">Join us in seconds</p>
+                
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <input type="text" id="signupName" placeholder="Full name" required>
+                        <span class="input-icon">
+                            <i class="fas fa-user"></i>
+                        </span>
+                    </div>
+                    <div class="error-message" id="signupNameError">Please enter your name</div>
+                </div>
+                
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <input type="email" id="signupEmail" placeholder="Email address" required>
+                        <span class="input-icon">
+                            <i class="fas fa-envelope"></i>
+                        </span>
+                    </div>
+                    <div class="error-message" id="signupEmailError">Please enter a valid email</div>
+                </div>
+                
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <input type="password" id="signupPassword" placeholder="Create password" required>
+                        <span class="input-icon password-toggle" id="toggleSignupPassword">
+                            <i class="fas fa-eye"></i>
+                        </span>
+                    </div>
+                    
+                    <!-- Password Strength Meter -->
+                    <div class="password-strength" id="passwordStrength">
+                        <div class="strength-meter">
+                            <div class="strength-fill" id="strengthFill"></div>
+                        </div>
+                        <div class="strength-text" id="strengthText"></div>
+                    </div>
+                    
+                    <div class="error-message" id="signupPasswordError">Password must be at least 6 characters</div>
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="terms" required>
+                    <label for="terms">I agree to Terms & Privacy</label>
+                </div>
+                
+                <button type="submit" class="auth-btn">
+                    Create Account
+                </button>
+
+                <p class="switch-link">
+                    Already have an account? <a id="showSignIn">Sign in</a>
+                </p>
+            </form>
+        </div>
     </div>
 
-    <div class="container">
-        <div class="header">
-            <h1><i class="fas fa-tasks"></i> Task Management System</h1>
-            <div class="header-buttons">
-                <button class="btn btn-add" onclick="openAddModal()"><i class="fas fa-plus"></i> Add New Task</button>
-                <button class="btn btn-print" onclick="printAllCards()"><i class="fas fa-print"></i> Print All Details</button>
-                <button class="btn btn-print" style="background: #4CAF50; color: white; border-color: #388E3C;" onclick="exportToExcel()"><i class="fas fa-file-excel"></i> Export to Excel</button>
-                <button class="btn btn-print" onclick="openUserModal()"><i class="fas fa-users-cog"></i> Settings</button>
-                <button class="btn btn-help" onclick="openHelpModal()"><i class="fas fa-question-circle"></i> Help & Support</button>
-                <button class="btn btn-logout" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
-            </div>
+    <!-- Task Management System Section -->
+    <div id="taskSystemSection" style="display: none;">
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="spinner"></div>
+            <div id="loadingMessage">Loading...</div>
         </div>
 
-        <div class="content">
-            <div id="alertBox" class="alert"></div>
-
-            <!-- Dashboard Analytics -->
-            <div class="dashboard-stats" id="dashboardStats">
-                <!-- Stats will be populated by JavaScript -->
+        <div class="container">
+            <div class="header">
+                <h1><i class="fas fa-tasks"></i> Task Management System</h1>
+                <div class="header-buttons">
+                    <button class="btn btn-add" onclick="openAddModal()"><i class="fas fa-plus"></i> Add New Task</button>
+                    <button class="btn btn-print" onclick="printAllCards()"><i class="fas fa-print"></i> Print All Details</button>
+                    <button class="btn btn-print" style="background: #4CAF50; color: white; border-color: #388E3C;" onclick="exportToExcel()"><i class="fas fa-file-excel"></i> Export to Excel</button>
+                    <button class="btn btn-print" onclick="openUserModal()"><i class="fas fa-users-cog"></i> Settings</button>
+                    <button class="btn btn-help" onclick="openHelpModal()"><i class="fas fa-question-circle"></i> Help & Support</button>
+                    <button class="btn btn-logout" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                </div>
             </div>
 
-            <!-- Advanced Search Panel -->
-            <div class="advanced-search-panel" id="advancedSearchPanel">
-                <div class="advanced-search-header">
-                    <h3><i class="fas fa-search-plus"></i> Advanced Search</h3>
-                    <button class="btn btn-sm btn-secondary" onclick="toggleAdvancedSearch()">Close</button>
+            <div class="content">
+                <div id="alertBox" class="alert"></div>
+
+                <!-- Dashboard Analytics -->
+                <div class="dashboard-stats" id="dashboardStats">
+                    <!-- Stats will be populated by JavaScript -->
                 </div>
-                <div class="advanced-search-filters">
-                    <div class="form-group">
-                        <label for="searchAssignee">Assignee</label>
-                        <select id="searchAssignee" onchange="applyFilters()">
-                            <option value="">All Assignees</option>
-                        </select>
+
+                <!-- User Approval Stats -->
+                <div class="user-approval-stats" id="userApprovalStats">
+                    <!-- Stats will be populated by JavaScript -->
+                </div>
+
+                <!-- Advanced Search Panel -->
+                <div class="advanced-search-panel" id="advancedSearchPanel">
+                    <div class="advanced-search-header">
+                        <h3><i class="fas fa-search-plus"></i> Advanced Search</h3>
+                        <button class="btn btn-sm btn-secondary" onclick="toggleAdvancedSearch()">Close</button>
                     </div>
-                    <div class="form-group">
-                        <label for="searchStatus">Status</label>
-                        <select id="searchStatus" onchange="applyFilters()">
-                            <option value="">All Statuses</option>
+                    <div class="advanced-search-filters">
+                        <div class="form-group">
+                            <label for="searchAssignee">Assignee</label>
+                            <select id="searchAssignee" onchange="applyFilters()">
+                                <option value="">All Assignees</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="searchStatus">Status</label>
+                            <select id="searchStatus" onchange="applyFilters()">
+                                <option value="">All Statuses</option>
+                                <option value="Allocated">Allocated</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Completed">Completed</option>
+                                <option value="On Hold">On Hold</option>
+                                <option value="Archived">Archived</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="searchPriority">Priority</label>
+                            <select id="searchPriority" onchange="applyFilters()">
+                                <option value="">All Priorities</option>
+                                <option value="High">High</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Low">Low</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="searchAmountMin">Amount Min</label>
+                            <input type="number" id="searchAmountMin" placeholder="Min amount" onchange="applyFilters()">
+                        </div>
+                        <div class="form-group">
+                            <label for="searchAmountMax">Amount Max</label>
+                            <input type="number" id="searchAmountMax" placeholder="Max amount" onchange="applyFilters()">
+                        </div>
+                        <div class="form-group">
+                            <label for="searchDateFrom">Date From</label>
+                            <input type="date" id="searchDateFrom" onchange="applyFilters()">
+                        </div>
+                        <div class="form-group">
+                            <label for="searchDateTo">Date To</label>
+                            <input type="date" id="searchDateTo" onchange="applyFilters()">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bulk Actions Panel -->
+                <div class="bulk-actions-panel" id="bulkActionsPanel">
+                    <div class="bulk-actions-header">
+                        <h3><i class="fas fa-layer-group"></i> Bulk Actions</h3>
+                        <button class="btn btn-sm btn-secondary" onclick="toggleBulkActions()">Close</button>
+                    </div>
+                    <div class="bulk-actions-buttons">
+                        <select id="bulkStatusSelect">
+                            <option value="">Update Status</option>
                             <option value="Allocated">Allocated</option>
                             <option value="In Progress">In Progress</option>
                             <option value="Completed">Completed</option>
                             <option value="On Hold">On Hold</option>
                             <option value="Archived">Archived</option>
                         </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="searchPriority">Priority</label>
-                        <select id="searchPriority" onchange="applyFilters()">
-                            <option value="">All Priorities</option>
-                            <option value="High">High</option>
-                            <option value="Medium">Medium</option>
-                            <option value="Low">Low</option>
+                        <button class="btn btn-sm btn-primary" onclick="bulkUpdateStatus()"><i class="fas fa-sync"></i> Update Status</button>
+                        
+                        <select id="bulkAssigneeSelect">
+                            <option value="">Update Assignee</option>
                         </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="searchAmountMin">Amount Min</label>
-                        <input type="number" id="searchAmountMin" placeholder="Min amount" onchange="applyFilters()">
-                    </div>
-                    <div class="form-group">
-                        <label for="searchAmountMax">Amount Max</label>
-                        <input type="number" id="searchAmountMax" placeholder="Max amount" onchange="applyFilters()">
-                    </div>
-                    <div class="form-group">
-                        <label for="searchDateFrom">Date From</label>
-                        <input type="date" id="searchDateFrom" onchange="applyFilters()">
-                    </div>
-                    <div class="form-group">
-                        <label for="searchDateTo">Date To</label>
-                        <input type="date" id="searchDateTo" onchange="applyFilters()">
+                        <button class="btn btn-sm btn-edit" onclick="bulkUpdateAssignee()"><i class="fas fa-user-edit"></i> Update Assignee</button>
+                        
+                        <button class="btn btn-sm btn-danger" onclick="bulkDeleteTasks()"><i class="fas fa-trash"></i> Delete Selected</button>
+                        <button class="btn btn-sm btn-archive-toggle" id="toggleArchivedBtn" onclick="toggleArchivedView()"><i class="fas fa-eye"></i> Show Archived</button>
                     </div>
                 </div>
-            </div>
 
-            <!-- Bulk Actions Panel -->
-            <div class="bulk-actions-panel" id="bulkActionsPanel">
-                <div class="bulk-actions-header">
-                    <h3><i class="fas fa-layer-group"></i> Bulk Actions</h3>
-                    <button class="btn btn-sm btn-secondary" onclick="toggleBulkActions()">Close</button>
-                </div>
-                <div class="bulk-actions-buttons">
-                    <select id="bulkStatusSelect">
-                        <option value="">Update Status</option>
-                        <option value="Allocated">Allocated</option>
-                        <option value="In Progress">In Progress</option>
-                        <option value="Completed">Completed</option>
-                        <option value="On Hold">On Hold</option>
-                        <option value="Archived">Archived</option>
-                    </select>
-                    <button class="btn btn-sm btn-primary" onclick="bulkUpdateStatus()"><i class="fas fa-sync"></i> Update Status</button>
+                <div class="table-header">
+                    <h2>
+                        <span>All Tasks</span>
+                    </h2>
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="Search tasks by name or assignee...">
+                        
+                        <button class="btn btn-toggle" id="toggleViewBtn" onclick="toggleView()"><i class="fas fa-th"></i> Card View</button>
+                        
+                        <!-- Feature Buttons -->
+                        <button class="btn btn-primary" onclick="toggleAdvancedSearch()"><i class="fas fa-search-plus"></i> Advanced Search</button>
+                        <button class="btn btn-primary" onclick="toggleBulkActions()"><i class="fas fa-layer-group"></i> Bulk Actions</button>
+                    </div>
                     
-                    <select id="bulkAssigneeSelect">
-                        <option value="">Update Assignee</option>
-                    </select>
-                    <button class="btn btn-sm btn-edit" onclick="bulkUpdateAssignee()"><i class="fas fa-user-edit"></i> Update Assignee</button>
-                    
-                    <button class="btn btn-sm btn-danger" onclick="bulkDeleteTasks()"><i class="fas fa-trash"></i> Delete Selected</button>
-                    <button class="btn btn-sm btn-archive-toggle" id="toggleArchivedBtn" onclick="toggleArchivedView()"><i class="fas fa-eye"></i> Show Archived</button>
-                </div>
-            </div>
-
-            <div class="table-header">
-                <h2>
-                    <span>All Tasks</span>
-                </h2>
-                <div class="search-box">
-                    <input type="text" id="searchInput" placeholder="Search tasks by name or assignee...">
-                    
-                    <button class="btn btn-toggle" id="toggleViewBtn" onclick="toggleView()"><i class="fas fa-th"></i> Card View</button>
-                    
-                    <!-- Feature Buttons -->
-                    <button class="btn btn-primary" onclick="toggleAdvancedSearch()"><i class="fas fa-search-plus"></i> Advanced Search</button>
-                    <button class="btn btn-primary" onclick="toggleBulkActions()"><i class="fas fa-layer-group"></i> Bulk Actions</button>
+                    <!-- Total Amount Display -->
+                    <div class="total-amount" id="totalAmountDisplay">
+                        <span>Project Value:</span>
+                        <span id="totalAmountValue">₹0.00</span>
+                    </div>
                 </div>
                 
-                <!-- Total Amount Display -->
-                <div class="total-amount" id="totalAmountDisplay">
-                    <span>Project Value:</span>
-                    <span id="totalAmountValue">₹0.00</span>
+                <div class="table-container" id="tableView">
+                    <table id="dataTable">
+                        <thead id="tableHead"></thead>
+                        <tbody id="tableBody">
+                            <tr>
+                                <td colspan="20" class="loading">Loading items...</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-            </div>
-            
-            <div class="table-container" id="tableView">
-                <table id="dataTable">
-                    <thead id="tableHead"></thead>
-                    <tbody id="tableBody">
-                        <tr>
-                            <td colspan="20" class="loading">Loading items...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
 
-            <div class="card-container" id="cardView" style="display: none;"></div>
+                <div class="card-container" id="cardView" style="display: none;"></div>
+            </div>
         </div>
-    </div>
-    
-    <div class="print-area" style="display: none;">
-        <div id="printContent"></div>
-    </div>
+        
+        <div class="print-area" style="display: none;">
+            <div id="printContent"></div>
+        </div>
 
-    <!-- Existing Modals -->
-    <div id="formModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="modalTitle">Add New Task</h2>
-                <button class="close-btn" onclick="closeFormModal()">&times;</button>
-            </div>
-            <form id="itemForm" onsubmit="handleSubmit(event)">
-                <input type="hidden" id="editId">
-                <div class="modal-body" id="formFields">
-                    </div>
-                
-                <div class="modal-body" style="grid-template-columns: 1fr; padding-top: 0;">
-                    <div id="fileAttachmentsContainer">
-                        <div class="form-group" style="margin-bottom: 10px;">
-                            <label for="fileAttachmentsInput"><i class="fas fa-paperclip"></i> File Attachments (Max 3 files, .xlsx, .pdf, .jpg only)</label>
-                            <input type="file" id="fileAttachmentsInput" multiple accept=".xlsx,.pdf,.jpg,.jpeg" onchange="handleFileSelection(event)">
-                            <div class="file-warning" id="fileWarning"></div>
-                        </div>
-                        <ul id="fileAttachmentsList">
-                            </ul>
-                    </div>
+        <!-- Task Form Modal -->
+        <div id="formModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="modalTitle">Add New Task</h2>
+                    <button class="close-btn" onclick="closeFormModal()">&times;</button>
                 </div>
+                <form id="itemForm" onsubmit="handleSubmit(event)">
+                    <input type="hidden" id="editId">
+                    <div class="modal-body" id="formFields"></div>
+                    
+                    <div class="modal-body" style="grid-template-columns: 1fr; padding-top: 0;">
+                        <div id="fileAttachmentsContainer">
+                            <div class="form-group" style="margin-bottom: 10px;">
+                                <label for="fileAttachmentsInput"><i class="fas fa-paperclip"></i> File Attachments (Max 3 files, .xlsx, .pdf, .jpg only)</label>
+                                <input type="file" id="fileAttachmentsInput" multiple accept=".xlsx,.pdf,.jpg,.jpeg" onchange="handleFileSelection(event)">
+                                <div class="file-warning" id="fileWarning"></div>
+                            </div>
+                            <ul id="fileAttachmentsList"></ul>
+                        </div>
+                    </div>
 
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="closeFormModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="submitBtn">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- User Management Modal -->
+        <div id="userManagementModal" class="modal">
+            <div class="modal-content" style="max-width: 1000px;">
+                <div class="modal-header">
+                    <h2><i class="fas fa-users-cog"></i> User Management (Assignees)</h2>
+                    <button class="close-btn" onclick="closeUserModal()">&times;</button>
+                </div>
+                <div class="modal-body" style="grid-template-columns: 1fr;">
+
+                    <!-- User Approval Section -->
+                    <div class="pending-approvals">
+                        <h3><i class="fas fa-clock"></i> Pending User Approvals</h3>
+                        <div id="pendingUsersList"></div>
+                    </div>
+
+                    <!-- Add New User Form (for Admin) -->
+                    <div class="card" style="border: 1px solid #e2e8f0; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
+                        <h3><i class="fas fa-user-plus"></i> Add New User (Admin)</h3>
+                        <form id="userForm" onsubmit="handleUserSubmit(event)" style="margin-top: 15px;">
+                            <input type="hidden" id="userEditId">
+                            <div class="modal-body" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); padding: 0;">
+                                <div class="form-group">
+                                    <label for="userName"><i class="fas fa-user"></i> Name</label>
+                                    <input type="text" id="userName" required placeholder="Enter user full name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="userEmail"><i class="fas fa-envelope"></i> Email</label>
+                                    <input type="email" id="userEmail" required placeholder="Enter email">
+                                </div>
+                                <div class="form-group">
+                                    <label for="userPassword"><i class="fas fa-lock"></i> Password</label>
+                                    <input type="password" id="userPassword" required placeholder="Set password">
+                                </div>
+                                <div class="form-group">
+                                    <label for="userPhone"><i class="fas fa-phone"></i> Phone</label>
+                                    <input type="tel" id="userPhone" placeholder="Phone number">
+                                </div>
+                                <div class="form-group" style="align-self: flex-end;">
+                                    <button type="submit" class="btn btn-primary" id="userSubmitBtn" style="width: 100%;">
+                                        <i class="fas fa-save"></i> Save User
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <h3><i class="fas fa-list"></i> Approved Users</h3>
+                    <div id="userEarningsInfo" style="margin-bottom: 15px;"></div>
+                    <ul id="userList"></ul>
+                    
+                    <div class="danger-zone">
+                        <h4>DANGER ZONE</h4>
+                        <p>Permanently delete all tasks and user data from this browser's local storage.</p>
+                        <button class="btn btn-danger" onclick="clearAllData()"><i class="fas fa-radiation"></i> Clear All Task & User Data</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Task Modal -->
+        <div id="deleteModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Confirm Delete</h2>
+                    <button class="close-btn" onclick="closeDeleteModal()">&times;</button>
+                </div>
+                <div class="modal-body delete-modal-content">
+                    <p>Are you sure you want to delete this task?</p>
+                    <div class="item-info" id="deleteItemInfo"></div>
+                </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="closeFormModal()">Cancel</button>
-                    <button type="submit" class="btn btn-primary" id="submitBtn">Save</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
                 </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="userManagementModal" class="modal">
-        <div class="modal-content" style="max-width: 1000px;">
-            <div class="modal-header">
-                <h2><i class="fas fa-users-cog"></i> User Management (Assignees)</h2>
-                <button class="close-btn" onclick="closeUserModal()">&times;</button>
             </div>
-            <div class="modal-body" style="grid-template-columns: 1fr;">
+        </div>
 
-                <!-- User Approval Section -->
-                <div class="pending-approvals" style="border: 2px solid #FF9800; padding: 15px; border-radius: 4px; margin: 15px 0;">
-                    <h3><i class="fas fa-clock"></i> Pending User Approvals</h3>
-                    <div id="pendingUsersList"></div>
+        <!-- Delete User Modal -->
+        <div id="userDeleteModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Confirm User Delete</h2>
+                    <button class="close-btn" onclick="closeUserDeleteModal()">&times;</button>
                 </div>
+                <div class="modal-body delete-modal-content">
+                    <p>Are you sure you want to delete user: <strong id="userToDeleteName"></strong>?</p>
+                    <small style="color: red;">Warning: Tasks assigned to this user will remain linked until edited.</small>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeUserDeleteModal()">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmUserDeleteBtn">Delete</button>
+                </div>
+            </div>
+        </div>
 
-                <!-- Add New User Form (for Admin) -->
-                <div class="card" style="border: 1px solid #e2e8f0; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
-                    <h3><i class="fas fa-user-plus"></i> Add New User (Admin)</h3>
-                    <form id="userForm" onsubmit="handleUserSubmit(event)" style="margin-top: 15px;">
-                        <input type="hidden" id="userEditId">
-                        <div class="modal-body" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); padding: 0;">
-                            <div class="form-group">
-                                <label for="userName"><i class="fas fa-user"></i> Name</label>
-                                <input type="text" id="userName" required placeholder="Enter user full name">
-                            </div>
-                            <div class="form-group">
-                                <label for="userEmail"><i class="fas fa-envelope"></i> Email</label>
-                                <input type="email" id="userEmail" required placeholder="Enter email">
-                            </div>
-                            <div class="form-group">
-                                <label for="userPassword"><i class="fas fa-lock"></i> Password</label>
-                                <input type="password" id="userPassword" required placeholder="Set password">
-                            </div>
-                            <div class="form-group">
-                                <label for="userPhone"><i class="fas fa-phone"></i> Phone</label>
-                                <input type="tel" id="userPhone" placeholder="Phone number">
-                            </div>
-                            <div class="form-group" style="align-self: flex-end;">
-                                <button type="submit" class="btn btn-primary" id="userSubmitBtn" style="width: 100%;">
-                                    <i class="fas fa-save"></i> Save User
-                                </button>
+        <!-- Help Modal -->
+        <div id="helpModal" class="modal">
+            <div class="modal-content" style="max-width: 800px;">
+                <div class="modal-header">
+                    <h2><i class="fas fa-question-circle"></i> Help & Support Center</h2>
+                    <button class="close-btn" onclick="closeHelpModal()">&times;</button>
+                </div>
+                <div class="modal-body" style="grid-template-columns: 1fr;">
+                    <div class="chat-container">
+                        <div class="chat-messages" id="chatMessages">
+                            <div class="message admin-message">
+                                <div class="message-sender">Admin</div>
+                                <div>Hello! How can I help you today?</div>
                             </div>
                         </div>
-                    </form>
-                </div>
-
-                <h3><i class="fas fa-list"></i> Approved Users</h3>
-                <div id="userEarningsInfo" style="margin-bottom: 15px;"></div>
-                <ul id="userList"></ul>
-                
-                <div class="danger-zone">
-                    <h4>DANGER ZONE</h4>
-                    <p>Permanently delete all tasks and user data from this browser's local storage.</p>
-                    <button class="btn btn-danger" onclick="clearAllData()"><i class="fas fa-radiation"></i> Clear All Task & User Data</button>
-                </div>
-
-            </div>
-        </div>
-    </div>
-
-    <div id="deleteModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Confirm Delete</h2>
-                <button class="close-btn" onclick="closeDeleteModal()">&times;</button>
-            </div>
-            <div class="modal-body delete-modal-content">
-                <p>Are you sure you want to delete this task?</p>
-                <div class="item-info" id="deleteItemInfo"></div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button>
-                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="userDeleteModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Confirm User Delete</h2>
-                <button class="close-btn" onclick="closeUserDeleteModal()">&times;</button>
-            </div>
-            <div class="modal-body delete-modal-content">
-                <p>Are you sure you want to delete user: <strong id="userToDeleteName"></strong>?</p>
-                <small style="color: red;">Warning: Tasks assigned to this user will remain linked until edited.</small>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="closeUserDeleteModal()">Cancel</button>
-                <button type="button" class="btn btn-danger" id="confirmUserDeleteBtn">Delete</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="helpModal" class="modal">
-        <div class="modal-content" style="max-width: 800px;">
-            <div class="modal-header">
-                <h2><i class="fas fa-question-circle"></i> Help & Support Center</h2>
-                <button class="close-btn" onclick="closeHelpModal()">&times;</button>
-            </div>
-            <div class="modal-body" style="grid-template-columns: 1fr;">
-                <div class="chat-container">
-                    <div class="chat-messages" id="chatMessages">
-                        <div class="message admin-message">
-                            <div class="message-sender">Admin</div>
-                            <div>Hello! How can I help you today?</div>
+                        <div class="chat-input">
+                            <input type="text" id="chatInput" placeholder="Type your message...">
+                            <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i> Send</button>
                         </div>
-                    </div>
-                    <div class="chat-input">
-                        <input type="text" id="chatInput" placeholder="Type your message...">
-                        <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i> Send</button>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- NEW MODALS FOR USER APPROVAL SYSTEM -->
-    <!-- User Login Modal -->
-    <div id="loginModal" class="modal">
-        <div class="modal-content" style="max-width: 400px;">
-            <div class="modal-header">
-                <h2><i class="fas fa-sign-in-alt"></i> User Login</h2>
-                <button class="close-btn" onclick="closeLoginModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="loginForm" onsubmit="handleUserLogin(event)">
-                    <div class="form-group">
-                        <label for="loginEmail">Email</label>
-                        <input type="email" id="loginEmail" required placeholder="Your email">
+        <!-- User Details Modal -->
+        <div id="userDetailsModal" class="modal">
+            <div class="modal-content" style="max-width: 600px;">
+                <div class="modal-header">
+                    <h2 id="userDetailsTitle"><i class="fas fa-users"></i> User Details</h2>
+                    <button class="close-btn" onclick="closeUserDetailsModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="user-details-container" id="userDetailsContainer">
+                        <!-- User details will be populated here -->
                     </div>
-                    <div class="form-group">
-                        <label for="loginPassword">Password</label>
-                        <input type="password" id="loginPassword" required placeholder="Your password">
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary" style="width: 100%;">
-                            <i class="fas fa-sign-in-alt"></i> Login
-                        </button>
-                    </div>
-                    <p style="text-align: center; margin-top: 15px;">
-                        <a href="#" onclick="openSignupModal()">Create new account</a>
-                    </p>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- User Signup Modal -->
-    <div id="signupModal" class="modal">
-        <div class="modal-content" style="max-width: 500px;">
-            <div class="modal-header">
-                <h2><i class="fas fa-user-plus"></i> User Signup</h2>
-                <button class="close-btn" onclick="closeSignupModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="signupForm" onsubmit="handleSignup(event)">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                        <div class="form-group">
-                            <label for="signupName">Full Name</label>
-                            <input type="text" id="signupName" required placeholder="Your full name">
-                        </div>
-                        <div class="form-group">
-                            <label for="signupEmail">Email</label>
-                            <input type="email" id="signupEmail" required placeholder="Your email">
-                        </div>
-                        <div class="form-group">
-                            <label for="signupPhone">Phone Number</label>
-                            <input type="tel" id="signupPhone" required placeholder="Your phone number">
-                        </div>
-                        <div class="form-group">
-                            <label for="signupPassword">Password</label>
-                            <input type="password" id="signupPassword" required placeholder="Create password">
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary" style="width: 100%;">
-                            <i class="fas fa-user-plus"></i> Register
-                        </button>
-                    </div>
-                </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeUserDetailsModal()">Close</button>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // ===== USER APPROVAL SYSTEM =====
-        class UserApprovalSystem {
+        // ===== USER AUTHENTICATION SYSTEM =====
+        class UserAuthenticationSystem {
             constructor() {
                 this.pendingUsers = JSON.parse(localStorage.getItem('pendingUsers')) || [];
                 this.approvedUsers = JSON.parse(localStorage.getItem('approvedUsers')) || [];
+                this.rejectedUsers = JSON.parse(localStorage.getItem('rejectedUsers')) || [];
                 this.currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+                this.initializeDefaultAdmin();
+            }
+
+            // Initialize default admin account
+            initializeDefaultAdmin() {
+                const adminExists = this.approvedUsers.some(u => u.role === 'admin');
+                if (!adminExists) {
+                    const adminUser = {
+                        id: 'admin',
+                        name: 'System Administrator',
+                        email: 'admin@task.com',
+                        password: 'admin123',
+                        role: 'admin',
+                        status: 'approved',
+                        createdAt: new Date().toISOString(),
+                        approvedAt: new Date().toISOString(),
+                        approvedBy: 'System'
+                    };
+                    this.approvedUsers.push(adminUser);
+                    this.saveToLocalStorage();
+                }
             }
 
             // User signup
@@ -1641,8 +1994,8 @@
                     id: `pending-${Date.now()}`,
                     name: userData.name,
                     email: userData.email,
-                    phone: userData.phone,
                     password: userData.password,
+                    role: 'user',
                     status: 'pending',
                     createdAt: new Date().toISOString(),
                     approvedAt: null,
@@ -1677,7 +2030,14 @@
                 const userIndex = this.pendingUsers.findIndex(u => u.id === userId);
                 if (userIndex === -1) return false;
 
+                const user = this.pendingUsers[userIndex];
+                user.status = 'rejected';
+                user.rejectedAt = new Date().toISOString();
+                
+                // Move to rejected users
+                this.rejectedUsers.push(user);
                 this.pendingUsers.splice(userIndex, 1);
+                
                 this.saveToLocalStorage();
                 return true;
             }
@@ -1690,24 +2050,10 @@
                 return user || null;
             }
 
-            // Admin login (bypass approval)
-            adminLogin(email, password) {
-                // Hardcoded admin credentials - you can change these
-                if (email === 'admin@task.com' && password === 'admin123') {
-                    return {
-                        id: 'admin',
-                        name: 'System Administrator',
-                        email: 'admin@task.com',
-                        role: 'admin',
-                        status: 'approved'
-                    };
-                }
-                return null;
-            }
-
             saveToLocalStorage() {
                 localStorage.setItem('pendingUsers', JSON.stringify(this.pendingUsers));
                 localStorage.setItem('approvedUsers', JSON.stringify(this.approvedUsers));
+                localStorage.setItem('rejectedUsers', JSON.stringify(this.rejectedUsers));
                 localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
             }
 
@@ -1717,6 +2063,14 @@
 
             getApprovedUsers() {
                 return this.approvedUsers;
+            }
+            
+            getRejectedUsers() {
+                return this.rejectedUsers;
+            }
+            
+            getAllUsers() {
+                return [...this.approvedUsers, ...this.rejectedUsers, ...this.pendingUsers];
             }
 
             setCurrentUser(user) {
@@ -1738,9 +2092,323 @@
             }
         }
 
-        // Initialize User Approval System
-        const userApprovalSystem = new UserApprovalSystem();
+        // Initialize User Authentication System
+        const userAuthSystem = new UserAuthenticationSystem();
 
+        // ===== AUTHENTICATION UI FUNCTIONS =====
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is already logged in
+            if (userAuthSystem.isLoggedIn()) {
+                showTaskSystem();
+                return;
+            }
+
+            // Form toggle functionality
+            const toggleBtns = document.querySelectorAll('.toggle-btn');
+            const forms = document.querySelectorAll('.auth-form');
+            const showSignIn = document.getElementById('showSignIn');
+            const showSignUp = document.getElementById('showSignUp');
+
+            toggleBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const formId = this.getAttribute('data-form');
+                    
+                    // Update active toggle button
+                    toggleBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Show corresponding form
+                    forms.forEach(form => form.classList.remove('active'));
+                    document.getElementById(formId + 'Form').classList.add('active');
+                });
+            });
+
+            showSignIn.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelector('[data-form="signin"]').click();
+            });
+
+            showSignUp.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelector('[data-form="signup"]').click();
+            });
+
+            // Sign In Form
+            const signinForm = document.getElementById('signinForm');
+            const signinEmail = document.getElementById('signinEmail');
+            const signinPassword = document.getElementById('signinPassword');
+            const toggleSigninPassword = document.getElementById('toggleSigninPassword');
+
+            // Real-time validation for sign in
+            signinEmail.addEventListener('input', function() {
+                const email = this.value.trim();
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                
+                if (email.length === 0) {
+                    this.classList.remove('valid', 'invalid');
+                } else if (emailRegex.test(email)) {
+                    this.classList.add('valid');
+                    this.classList.remove('invalid');
+                } else {
+                    this.classList.add('invalid');
+                    this.classList.remove('valid');
+                }
+            });
+
+            signinPassword.addEventListener('input', function() {
+                const password = this.value;
+                
+                if (password.length === 0) {
+                    this.classList.remove('valid', 'invalid');
+                } else if (password.length >= 6) {
+                    this.classList.add('valid');
+                    this.classList.remove('invalid');
+                } else {
+                    this.classList.add('invalid');
+                    this.classList.remove('valid');
+                }
+            });
+
+            // Sign In validation
+            signinForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const email = signinEmail.value.trim();
+                const password = signinPassword.value;
+
+                // Clear previous errors
+                document.getElementById('signinEmailError').classList.remove('show');
+                document.getElementById('signinPasswordError').classList.remove('show');
+
+                // Find user
+                const user = userAuthSystem.verifyLogin(email, password);
+
+                if (!user) {
+                    // Show error
+                    document.getElementById('signinEmailError').textContent = 'Invalid email or password';
+                    document.getElementById('signinEmailError').classList.add('show');
+                    document.getElementById('signinPasswordError').classList.add('show');
+                    
+                    signinEmail.classList.add('invalid');
+                    signinPassword.classList.add('invalid');
+                } else {
+                    // Successful login
+                    signinEmail.classList.add('valid');
+                    signinPassword.classList.add('valid');
+                    
+                    const btn = signinForm.querySelector('.auth-btn');
+                    btn.innerHTML = 'Signing In...';
+                    btn.disabled = true;
+                    
+                    setTimeout(() => {
+                        userAuthSystem.setCurrentUser(user);
+                        showAlert(`Welcome back, ${user.name}!`, 'success');
+                        signinForm.reset();
+                        showTaskSystem();
+                    }, 1000);
+                }
+            });
+
+            // Sign Up Form
+            const signupForm = document.getElementById('signupForm');
+            const signupName = document.getElementById('signupName');
+            const signupEmail = document.getElementById('signupEmail');
+            const signupPassword = document.getElementById('signupPassword');
+            const toggleSignupPassword = document.getElementById('toggleSignupPassword');
+
+            // Real-time validation for sign up
+            signupName.addEventListener('input', function() {
+                const name = this.value.trim();
+                
+                if (name.length === 0) {
+                    this.classList.remove('valid', 'invalid');
+                } else if (name.length >= 2) {
+                    this.classList.add('valid');
+                    this.classList.remove('invalid');
+                } else {
+                    this.classList.add('invalid');
+                    this.classList.remove('valid');
+                }
+            });
+
+            signupEmail.addEventListener('input', function() {
+                const email = this.value.trim();
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                
+                if (email.length === 0) {
+                    this.classList.remove('valid', 'invalid');
+                } else if (emailRegex.test(email)) {
+                    this.classList.add('valid');
+                    this.classList.remove('invalid');
+                } else {
+                    this.classList.add('invalid');
+                    this.classList.remove('valid');
+                }
+            });
+
+            // Password strength for sign up
+            signupPassword.addEventListener('input', function() {
+                const password = this.value;
+                const strength = calculatePasswordStrength(password);
+                
+                updateStrengthMeter(strength, password);
+                
+                if (password.length === 0) {
+                    this.classList.remove('valid', 'invalid');
+                } else if (password.length >= 6) {
+                    this.classList.add('valid');
+                    this.classList.remove('invalid');
+                } else {
+                    this.classList.add('invalid');
+                    this.classList.remove('valid');
+                }
+            });
+
+            // Sign Up validation
+            signupForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const name = signupName.value.trim();
+                const email = signupEmail.value.trim();
+                const password = signupPassword.value;
+                const terms = document.getElementById('terms').checked;
+
+                let isValid = true;
+
+                // Name validation
+                if (name.length < 2) {
+                    document.getElementById('signupNameError').classList.add('show');
+                    signupName.classList.add('invalid');
+                    isValid = false;
+                } else {
+                    document.getElementById('signupNameError').classList.remove('show');
+                    signupName.classList.add('valid');
+                }
+
+                // Email validation
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    document.getElementById('signupEmailError').classList.add('show');
+                    signupEmail.classList.add('invalid');
+                    isValid = false;
+                } else {
+                    document.getElementById('signupEmailError').classList.remove('show');
+                    signupEmail.classList.add('valid');
+                }
+
+                // Password validation
+                if (password.length < 6) {
+                    document.getElementById('signupPasswordError').classList.add('show');
+                    signupPassword.classList.add('invalid');
+                    isValid = false;
+                } else {
+                    document.getElementById('signupPasswordError').classList.remove('show');
+                    signupPassword.classList.add('valid');
+                }
+
+                // Check if email already exists
+                const existingUser = userAuthSystem.getAllUsers().find(u => u.email === email);
+                if (existingUser) {
+                    document.getElementById('signupEmailError').textContent = 'Email already exists';
+                    document.getElementById('signupEmailError').classList.add('show');
+                    signupEmail.classList.add('invalid');
+                    isValid = false;
+                }
+
+                if (isValid && terms) {
+                    // Save user
+                    const newUser = userAuthSystem.signupUser({ name, email, password });
+                    
+                    // Show success
+                    const btn = signupForm.querySelector('.auth-btn');
+                    btn.innerHTML = 'Creating Account...';
+                    btn.disabled = true;
+                    
+                    setTimeout(() => {
+                        alert('Account created successfully! Please wait for admin approval.');
+                        signupForm.reset();
+                        btn.innerHTML = 'Create Account';
+                        btn.disabled = false;
+                        document.querySelectorAll('input').forEach(input => input.classList.remove('valid', 'invalid'));
+                        document.getElementById('passwordStrength').classList.remove('show');
+                        
+                        // Switch to sign in
+                        document.querySelector('[data-form="signin"]').click();
+                    }, 1000);
+                }
+            });
+
+            // Password toggle functionality
+            function setupPasswordToggle(inputId, toggleId) {
+                const input = document.getElementById(inputId);
+                const toggle = document.getElementById(toggleId);
+                
+                toggle.addEventListener('click', function() {
+                    const type = input.type === 'password' ? 'text' : 'password';
+                    input.type = type;
+                    this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+                });
+            }
+
+            setupPasswordToggle('signinPassword', 'toggleSigninPassword');
+            setupPasswordToggle('signupPassword', 'toggleSignupPassword');
+        });
+
+        // Password strength calculator
+        function calculatePasswordStrength(password) {
+            let strength = 0;
+            
+            // Length check
+            if (password.length >= 8) strength += 25;
+            else if (password.length >= 6) strength += 15;
+            else if (password.length >= 4) strength += 5;
+            
+            // Character variety checks
+            if (/[a-z]/.test(password)) strength += 15; // lowercase
+            if (/[A-Z]/.test(password)) strength += 15; // uppercase
+            if (/[0-9]/.test(password)) strength += 15; // numbers
+            if (/[^A-Za-z0-9]/.test(password)) strength += 15; // special chars
+            
+            // Pattern checks
+            if (password.length >= 12) strength += 15; // very long
+            if (/[a-z]/.test(password) && /[A-Z]/.test(password) && /[0-9]/.test(password) && /[^A-Za-z0-9]/.test(password)) {
+                strength += 15; // has all character types
+            }
+            
+            return Math.min(strength, 100);
+        }
+
+        function updateStrengthMeter(strength, password) {
+            const fill = document.getElementById('strengthFill');
+            const text = document.getElementById('strengthText');
+            const strengthContainer = document.getElementById('passwordStrength');
+            
+            // Show/hide strength meter
+            if (password.length === 0) {
+                strengthContainer.classList.remove('show');
+                return;
+            } else {
+                strengthContainer.classList.add('show');
+            }
+            
+            fill.style.width = strength + '%';
+            
+            if (strength < 40) {
+                fill.style.background = '#e53e3e';
+                text.textContent = 'Weak';
+                text.className = 'strength-text weak';
+            } else if (strength < 70) {
+                fill.style.background = '#d97706';
+                text.textContent = 'Moderate';
+                text.className = 'strength-text moderate';
+            } else {
+                fill.style.background = '#059669';
+                text.textContent = 'Strong';
+                text.className = 'strength-text strong';
+            }
+        }
+
+        // ===== TASK MANAGEMENT SYSTEM FUNCTIONS =====
         // Task Fields Definition
         const FIELDS = [
             { id: 'taskIdNumber', label: 'Task No.', type: 'text', icon: 'fa-hashtag', required: false, showInTable: true, showInPrint: true, searchable: true, placeholder: 'TSK-00001', sortable: true },
@@ -1755,7 +2423,6 @@
         ];
 
         let allItems = [];
-        let allUsers = [];
         let deleteItemId = null;
         let deleteUserId = null;
         let isCardView = false;
@@ -1772,12 +2439,9 @@
         const userManagementModal = document.getElementById('userManagementModal');
         const userDeleteModal = document.getElementById('userDeleteModal');
         const helpModal = document.getElementById('helpModal');
-        const loginModal = document.getElementById('loginModal');
-        const signupModal = document.getElementById('signupModal');
+        const userDetailsModal = document.getElementById('userDetailsModal');
         const itemForm = document.getElementById('itemForm');
         const userForm = document.getElementById('userForm');
-        const loginForm = document.getElementById('loginForm');
-        const signupForm = document.getElementById('signupForm');
         const tableBody = document.getElementById('tableBody');
         const tableHead = document.getElementById('tableHead');
         const searchInput = document.getElementById('searchInput');
@@ -1798,6 +2462,7 @@
         const toggleArchivedBtn = document.getElementById('toggleArchivedBtn');
         const chatMessages = document.getElementById('chatMessages');
         const chatInput = document.getElementById('chatInput');
+        const userApprovalStats = document.getElementById('userApprovalStats');
         
         // Advanced Search Elements
         const advancedSearchPanel = document.getElementById('advancedSearchPanel');
@@ -1814,112 +2479,151 @@
         const bulkStatusSelect = document.getElementById('bulkStatusSelect');
         const bulkAssigneeSelect = document.getElementById('bulkAssigneeSelect');
 
-        // ===== MODAL FUNCTIONS =====
-        function openLoginModal() {
-            loginModal.classList.add('active');
-        }
+        // ===== USER APPROVAL STATS FUNCTIONS =====
+        function updateUserApprovalStats() {
+            const pendingCount = userAuthSystem.getPendingUsers().length;
+            const approvedCount = userAuthSystem.getApprovedUsers().length;
+            const rejectedCount = userAuthSystem.getRejectedUsers().length;
+            const totalCount = userAuthSystem.getAllUsers().length;
 
-        function closeLoginModal() {
-            loginModal.classList.remove('active');
-            loginForm.reset();
-        }
-
-        function openSignupModal() {
-            closeLoginModal();
-            signupModal.classList.add('active');
-        }
-
-        function closeSignupModal() {
-            signupModal.classList.remove('active');
-            signupForm.reset();
-        }
-
-        // ===== SIGNUP HANDLER =====
-        function handleSignup(e) {
-            e.preventDefault();
+            const statsHTML = `
+                <div class="user-stat-card" onclick="showUserDetails('pending')">
+                    <div class="user-stat-icon" style="background: #FF9800;">
+                        <i class="fas fa-user-clock"></i>
+                    </div>
+                    <div class="user-stat-info">
+                        <span class="user-stat-value" style="color: #FF9800;">${pendingCount}</span>
+                        <span class="user-stat-label">Pending Users</span>
+                    </div>
+                    ${pendingCount > 0 ? `<div class="user-approval-badge">${pendingCount}</div>` : ''}
+                </div>
+                <div class="user-stat-card" onclick="showUserDetails('approved')">
+                    <div class="user-stat-icon" style="background: #4CAF50;">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <div class="user-stat-info">
+                        <span class="user-stat-value" style="color: #4CAF50;">${approvedCount}</span>
+                        <span class="user-stat-label">Approved Users</span>
+                    </div>
+                </div>
+                <div class="user-stat-card" onclick="showUserDetails('rejected')">
+                    <div class="user-stat-icon" style="background: #F44336;">
+                        <i class="fas fa-user-times"></i>
+                    </div>
+                    <div class="user-stat-info">
+                        <span class="user-stat-value" style="color: #F44336;">${rejectedCount}</span>
+                        <span class="user-stat-label">Rejected Users</span>
+                    </div>
+                </div>
+                <div class="user-stat-card" onclick="showUserDetails('all')">
+                    <div class="user-stat-icon" style="background: #2196F3;">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="user-stat-info">
+                        <span class="user-stat-value" style="color: #2196F3;">${totalCount}</span>
+                        <span class="user-stat-label">Total Users</span>
+                    </div>
+                </div>
+            `;
             
-            const userData = {
-                name: document.getElementById('signupName').value,
-                email: document.getElementById('signupEmail').value,
-                phone: document.getElementById('signupPhone').value,
-                password: document.getElementById('signupPassword').value
-            };
-
-            // Check if email already exists
-            const allUsers = [...userApprovalSystem.pendingUsers, ...userApprovalSystem.approvedUsers];
-            if (allUsers.some(u => u.email === userData.email)) {
-                showAlert('This email is already registered!', 'error');
-                return;
+            userApprovalStats.innerHTML = statsHTML;
+        }
+        
+        function showUserDetails(type) {
+            let users = [];
+            let title = '';
+            
+            switch(type) {
+                case 'pending':
+                    users = userAuthSystem.getPendingUsers();
+                    title = 'Pending User Requests';
+                    break;
+                case 'approved':
+                    users = userAuthSystem.getApprovedUsers();
+                    title = 'Approved Users';
+                    break;
+                case 'rejected':
+                    users = userAuthSystem.getRejectedUsers();
+                    title = 'Rejected Users';
+                    break;
+                case 'all':
+                    users = userAuthSystem.getAllUsers();
+                    title = 'All Users';
+                    break;
             }
-
-            const newUser = userApprovalSystem.signupUser(userData);
             
-            document.getElementById('signupForm').reset();
-            closeSignupModal();
+            document.getElementById('userDetailsTitle').innerHTML = `<i class="fas fa-users"></i> ${title}`;
             
-            showAlert(`Registration successful! Wait for admin approval.`, 'success');
-            renderPendingUsers();
-        }
-
-        // ===== LOGIN HANDLER =====
-        function handleUserLogin(e) {
-            e.preventDefault();
-            
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            
-            // Try admin login first
-            let user = userApprovalSystem.adminLogin(email, password);
-            
-            // If not admin, try regular user login
-            if (!user) {
-                user = userApprovalSystem.verifyLogin(email, password);
-            }
-            
-            if (user) {
-                userApprovalSystem.setCurrentUser(user);
-                showAlert(`Welcome ${user.name}!`, 'success');
-                closeLoginModal();
-                
-                // Update UI based on user role
-                updateUIForUser();
-                loadItems(); // Reload tasks based on user permissions
+            if (users.length === 0) {
+                document.getElementById('userDetailsContainer').innerHTML = '<p style="text-align: center; color: #999;">No users found</p>';
             } else {
-                showAlert('Invalid email or password', 'error');
+                let userDetailsHTML = '';
+                
+                users.forEach(user => {
+                    const statusBadge = user.status === 'approved' ? 
+                        '<span style="color: #4CAF50; font-weight: bold;">✓ Approved</span>' : 
+                        user.status === 'rejected' ? 
+                        '<span style="color: #F44336; font-weight: bold;">✗ Rejected</span>' : 
+                        '<span style="color: #FF9800; font-weight: bold;">⏳ Pending</span>';
+                    
+                    userDetailsHTML += `
+                        <div class="user-detail-item">
+                            <div>
+                                <div style="font-weight: bold; margin-bottom: 5px;">${escapeHtml(user.name)}</div>
+                                <div style="font-size: 0.9em; color: #666;">${escapeHtml(user.email)}</div>
+                                <div style="font-size: 0.8em; color: #999; margin-top: 5px;">
+                                    Registered: ${new Date(user.createdAt).toLocaleDateString('en-IN')}
+                                </div>
+                            </div>
+                            <div>
+                                ${statusBadge}
+                                ${user.status === 'pending' && userAuthSystem.isAdmin() ? `
+                                    <div style="margin-top: 10px;">
+                                        <button class="btn btn-sm btn-edit" onclick="approveUserFromDetails('${user.id}')">
+                                            <i class="fas fa-check"></i> Approve
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" onclick="rejectUserFromDetails('${user.id}')">
+                                            <i class="fas fa-times"></i> Reject
+                                        </button>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                document.getElementById('userDetailsContainer').innerHTML = userDetailsHTML;
+            }
+            
+            document.getElementById('userDetailsModal').classList.add('active');
+        }
+        
+        function closeUserDetailsModal() {
+            document.getElementById('userDetailsModal').classList.remove('active');
+        }
+        
+        function approveUserFromDetails(userId) {
+            if (userAuthSystem.approveUser(userId)) {
+                showAlert('User approved successfully!', 'success');
+                updateUserApprovalStats();
+                renderPendingUsers();
+                loadUsers();
+                closeUserDetailsModal();
             }
         }
-
-        // ===== USER INTERFACE UPDATES =====
-        function updateUIForUser() {
-            const user = userApprovalSystem.currentUser;
-            const isAdmin = userApprovalSystem.isAdmin();
-            
-            // Show/hide admin features
-            const adminButtons = document.querySelectorAll('.btn-add, .btn-print, .btn-help');
-            const userManagementBtn = document.querySelector('[onclick="openUserModal()"]');
-            
-            if (isAdmin) {
-                // Show all admin features
-                adminButtons.forEach(btn => btn.style.display = 'inline-block');
-                if (userManagementBtn) userManagementBtn.style.display = 'inline-block';
-                
-                // Update header to show admin status
-                document.querySelector('.header h1').innerHTML = 
-                    '<i class="fas fa-tasks"></i> Task Management System <small style="font-size: 0.6em; color: #FFD700;">(Admin Mode)</small>';
-            } else {
-                // Hide admin features for regular users
-                adminButtons.forEach(btn => btn.style.display = 'none');
-                if (userManagementBtn) userManagementBtn.style.display = 'none';
-                
-                // Update header for user mode
-                document.querySelector('.header h1').innerHTML = 
-                    `<i class="fas fa-tasks"></i> Task Management System <small style="font-size: 0.6em;">(User: ${user.name})</small>`;
+        
+        function rejectUserFromDetails(userId) {
+            if (userAuthSystem.rejectUser(userId)) {
+                showAlert('User rejected', 'warning');
+                updateUserApprovalStats();
+                renderPendingUsers();
+                closeUserDetailsModal();
             }
         }
 
         // ===== PENDING USERS DISPLAY =====
         function renderPendingUsers() {
-            const pendingUsers = userApprovalSystem.getPendingUsers();
+            const pendingUsers = userAuthSystem.getPendingUsers();
 
             if (pendingUsers.length === 0) {
                 pendingUsersList.innerHTML = '<p style="text-align: center; color: #999;">No pending user approvals</p>';
@@ -1930,7 +2634,7 @@
                 <div class="user-card" style="display: flex; justify-content: space-between; align-items: center; padding: 10px; border: 1px solid #ddd; margin: 5px 0; border-radius: 4px;">
                     <div>
                         <strong>${user.name}</strong><br>
-                        <small>${user.email} | ${user.phone}</small><br>
+                        <small>${user.email}</small><br>
                         <small style="color: #FF9800;">Registered: ${new Date(user.createdAt).toLocaleDateString('en-IN')}</small>
                     </div>
                     <div class="user-actions">
@@ -1947,18 +2651,20 @@
 
         function approveUser(userId) {
             if (confirm('Approve this user?')) {
-                if (userApprovalSystem.approveUser(userId)) {
+                if (userAuthSystem.approveUser(userId)) {
                     showAlert('User approved successfully!', 'success');
+                    updateUserApprovalStats();
                     renderPendingUsers();
-                    loadUsers(); // Refresh user list
+                    loadUsers();
                 }
             }
         }
 
         function rejectUser(userId) {
             if (confirm('Reject this user?')) {
-                if (userApprovalSystem.rejectUser(userId)) {
+                if (userAuthSystem.rejectUser(userId)) {
                     showAlert('User rejected', 'warning');
+                    updateUserApprovalStats();
                     renderPendingUsers();
                 }
             }
@@ -2175,8 +2881,7 @@
             closeUserModal();
             closeUserDeleteModal();
             closeHelpModal();
-            closeLoginModal();
-            closeSignupModal();
+            closeUserDetailsModal();
         }
 
         // --- CORE LOCAL STORAGE FUNCTIONS ---
@@ -2193,13 +2898,6 @@
         function initializeData() {
             if (!localStorage.getItem('taskData')) {
                 saveItems('taskData', []);
-            }
-            if (!localStorage.getItem('users')) {
-                const defaultUsers = [
-                    { id: 'user-1', name: 'Alice Johnson', email: 'alice@example.com', image: '', createdAt: new Date().toISOString() },
-                    { id: 'user-2', name: 'Bob Smith', email: 'bob@example.com', image: '', createdAt: new Date().toISOString() }
-                ];
-                saveItems('users', defaultUsers);
             }
             if (!localStorage.getItem('taskCounter')) {
                 localStorage.setItem('taskCounter', 0);
@@ -2232,9 +2930,14 @@
         // --- USER MANAGEMENT & SETTINGS FUNCTIONS ---
 
         window.openUserModal = function() {
-             userManagementModal.classList.add('active');
-             updateUserEarningsInfo();
-             renderPendingUsers();
+            if (!userAuthSystem.isAdmin()) {
+                showAlert('Only admin can access user management!', 'error');
+                return;
+            }
+            
+            userManagementModal.classList.add('active');
+            updateUserEarningsInfo();
+            renderPendingUsers();
         }
         
         window.closeUserModal = function() {
@@ -2246,7 +2949,6 @@
         }
         
         function loadUsers() {
-            allUsers = userApprovalSystem.getApprovedUsers();
             renderUserList();
             generateFormFields();
             populateAssigneeFilters();
@@ -2268,7 +2970,7 @@
             });
             
             let earningsHTML = '';
-            userApprovalSystem.getApprovedUsers().forEach(user => {
+            userAuthSystem.getApprovedUsers().forEach(user => {
                 const earnings = userEarnings[user.name] || 0;
                 earningsHTML += `
                     <div class="user-earnings">
@@ -2286,11 +2988,11 @@
                 showLoading('Clearing all data...');
                 setTimeout(() => {
                     localStorage.removeItem('taskData');
-                    localStorage.removeItem('users');
                     localStorage.removeItem('taskCounter');
                     localStorage.removeItem('selectedTheme');
                     localStorage.removeItem('pendingUsers');
                     localStorage.removeItem('approvedUsers');
+                    localStorage.removeItem('rejectedUsers');
                     localStorage.removeItem('currentUser');
                     hideLoading();
                     showAlert('All data cleared successfully!', 'success');
@@ -2303,7 +3005,7 @@
         
         function renderUserList() {
             userListElement.innerHTML = '';
-            const approvedUsers = userApprovalSystem.getApprovedUsers();
+            const approvedUsers = userAuthSystem.getApprovedUsers();
             
             if (approvedUsers.length === 0) {
                 userListElement.innerHTML = '<p style="text-align: center; color: #999;">No users added yet.</p>';
@@ -2342,22 +3044,23 @@
 
             if (id) {
                 // Update existing user
-                const index = userApprovalSystem.approvedUsers.findIndex(u => u.id === id);
+                const index = userAuthSystem.approvedUsers.findIndex(u => u.id === id);
                 if (index !== -1) {
-                    userApprovalSystem.approvedUsers[index] = { ...userApprovalSystem.approvedUsers[index], ...user };
-                    userApprovalSystem.saveToLocalStorage();
+                    userAuthSystem.approvedUsers[index] = { ...userAuthSystem.approvedUsers[index], ...user };
+                    userAuthSystem.saveToLocalStorage();
                     showAlert('User updated successfully!', 'success');
                 }
             } else {
                 // Add new user (auto-approved when added by admin)
                 user.id = `user-${Date.now()}`;
+                user.role = 'user';
                 user.status = 'approved';
                 user.approvedAt = new Date().toISOString();
                 user.approvedBy = 'Admin';
                 user.createdAt = new Date().toISOString();
                 
-                userApprovalSystem.approvedUsers.push(user);
-                userApprovalSystem.saveToLocalStorage();
+                userAuthSystem.approvedUsers.push(user);
+                userAuthSystem.saveToLocalStorage();
                 showAlert('User added successfully!', 'success');
             }
 
@@ -2365,15 +3068,11 @@
             document.getElementById('userEditId').value = '';
             document.getElementById('userSubmitBtn').innerHTML = '<i class="fas fa-save"></i> Save User';
             loadUsers();
-        }
-
-        function isValidEmail(email) {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return emailRegex.test(email);
+            updateUserApprovalStats();
         }
 
         window.openUserEditModal = function(id) {
-            const user = userApprovalSystem.approvedUsers.find(u => u.id === id);
+            const user = userAuthSystem.approvedUsers.find(u => u.id === id);
             if (!user) return;
 
             document.getElementById('userEditId').value = id;
@@ -2385,7 +3084,7 @@
         }
 
         window.openUserDeleteModal = function(id) {
-            const user = userApprovalSystem.approvedUsers.find(u => u.id === id);
+            const user = userAuthSystem.approvedUsers.find(u => u.id === id);
             if (!user) return;
             deleteUserId = id;
             document.getElementById('userToDeleteName').textContent = user.name;
@@ -2402,13 +3101,14 @@
 
             showLoading('Deleting user...');
             setTimeout(() => {
-                const initialLength = userApprovalSystem.approvedUsers.length;
-                userApprovalSystem.approvedUsers = userApprovalSystem.approvedUsers.filter(u => u.id !== deleteUserId);
-                userApprovalSystem.saveToLocalStorage();
+                const initialLength = userAuthSystem.approvedUsers.length;
+                userAuthSystem.approvedUsers = userAuthSystem.approvedUsers.filter(u => u.id !== deleteUserId);
+                userAuthSystem.saveToLocalStorage();
 
-                if (userApprovalSystem.approvedUsers.length !== initialLength) {
+                if (userAuthSystem.approvedUsers.length !== initialLength) {
                     showAlert('User deleted successfully!', 'success');
                     loadUsers();
+                    updateUserApprovalStats();
                 } else {
                     showAlert('Error: Could not delete user', 'error');
                 }
@@ -2438,7 +3138,7 @@
                 }
                 
                 if (field.id === 'assignedTo') {
-                    const assigneeOptions = userApprovalSystem.getApprovedUsers().map(user => 
+                    const assigneeOptions = userAuthSystem.getApprovedUsers().map(user => 
                         `<option value="${escapeHtml(user.name)}">${escapeHtml(user.name)}</option>`
                     ).join('');
 
@@ -2801,7 +3501,7 @@
                 else if (value === 'High') color = '#F44336';
                 return `<span style="color: ${color}; font-weight: bold;">●</span> ${escapeHtml(value)}`;
             } else if (field.id === 'assignedTo') {
-                const user = userApprovalSystem.getApprovedUsers().find(u => u.name === value);
+                const user = userAuthSystem.getApprovedUsers().find(u => u.name === value);
                 const defaultImage = "https://via.placeholder.com/20?text=👤"; 
                 return `
                     <img src="${user?.image || defaultImage}" alt="${value}" style="width: 20px; height: 20px; border-radius: 50%; margin-right: 5px; vertical-align: middle; object-fit: cover; border: 1px solid #ddd;">
@@ -3105,7 +3805,7 @@
                                 <div class="card-value">
                                     ${item.assignedTo ? `
                                         <div style="display: flex; align-items: center;">
-                                            <img src="${userApprovalSystem.getApprovedUsers().find(u => u.name === item.assignedTo)?.image || 'https://via.placeholder.com/20?text=👤'}" 
+                                            <img src="${userAuthSystem.getApprovedUsers().find(u => u.name === item.assignedTo)?.image || 'https://via.placeholder.com/20?text=👤'}" 
                                                  alt="${item.assignedTo}" 
                                                  style="width: 20px; height: 20px; border-radius: 50%; margin-right: 5px; object-fit: cover; border: 1px solid #ddd;">
                                             ${escapeHtml(item.assignedTo)}
@@ -3202,13 +3902,13 @@
         // --- MODAL FUNCTIONS ---
 
         window.openAddModal = function() {
-            if (!userApprovalSystem.isLoggedIn()) {
+            if (!userAuthSystem.isLoggedIn()) {
                 showAlert('Please login first!', 'error');
-                openLoginModal();
+                showAuthSection();
                 return;
             }
             
-            if (!userApprovalSystem.isAdmin()) {
+            if (!userAuthSystem.isAdmin()) {
                 showAlert('Only admin can create tasks!', 'error');
                 return;
             }
@@ -3235,9 +3935,9 @@
         };
 
         window.openEditModal = function(id) {
-            if (!userApprovalSystem.isLoggedIn()) {
+            if (!userAuthSystem.isLoggedIn()) {
                 showAlert('Please login first!', 'error');
-                openLoginModal();
+                showAuthSection();
                 return;
             }
             
@@ -3290,7 +3990,7 @@
         // --- EXPORT & PRINT FUNCTIONS --- 
         
         window.exportToExcel = function() {
-            if (!userApprovalSystem.isAdmin()) {
+            if (!userAuthSystem.isAdmin()) {
                 showAlert('Only admin can export data!', 'error');
                 return;
             }
@@ -3469,8 +4169,8 @@
             if (confirm("Are you sure you want to log out? All unsaved changes will be lost (Note: Data is automatically saved to Local Storage).")) {
                 showLoading('Logging out...');
                 setTimeout(() => {
-                    userApprovalSystem.logout();
-                    window.location.reload(); 
+                    userAuthSystem.logout();
+                    showAuthSection();
                 }, 1000);
             }
         }
@@ -3593,14 +4293,14 @@
         
         function populateAssigneeFilters() {
             searchAssignee.innerHTML = '<option value="">All Assignees</option>';
-            userApprovalSystem.getApprovedUsers().forEach(user => {
+            userAuthSystem.getApprovedUsers().forEach(user => {
                 searchAssignee.innerHTML += `<option value="${escapeHtml(user.name)}">${escapeHtml(user.name)}</option>`;
             });
         }
         
         function populateBulkAssigneeSelect() {
             bulkAssigneeSelect.innerHTML = '<option value="">Update Assignee</option>';
-            userApprovalSystem.getApprovedUsers().forEach(user => {
+            userAuthSystem.getApprovedUsers().forEach(user => {
                 bulkAssigneeSelect.innerHTML += `<option value="${escapeHtml(user.name)}">${escapeHtml(user.name)}</option>`;
             });
         }
@@ -3710,7 +4410,7 @@
         window.openHelpModal = function() {
             helpModal.classList.add('active');
         }
-        rgba(237,18,18,0.78)
+        
         window.closeHelpModal = function() {
             helpModal.classList.remove('active');
         }
@@ -3766,30 +4466,67 @@
             }
         });
 
-        // ===== INITIALIZATION =====
-        function initializeUserSystem() {
-            // Check if user is logged in
-            if (!userApprovalSystem.isLoggedIn()) {
-                // Show login modal on page load
-                setTimeout(() => {
-                    openLoginModal();
-                }, 1000);
-            } else {
-                updateUIForUser();
-            }
-            
-            renderPendingUsers();
+        // ===== AUTHENTICATION UI TOGGLE FUNCTIONS =====
+        function showAuthSection() {
+            document.getElementById('authSection').style.display = 'flex';
+            document.getElementById('taskSystemSection').style.display = 'none';
         }
 
-        // Initialize Data and UI
-        initializeData();
-        loadUsers(); 
-        generateTableHeader();
-        loadItems();
-        setupKeyboardShortcuts();
-        initializeUserSystem();
+        function showTaskSystem() {
+            document.getElementById('authSection').style.display = 'none';
+            document.getElementById('taskSystemSection').style.display = 'block';
+            
+            // Update UI based on user role
+            updateUIForUser();
+            
+            // Initialize task system
+            initializeData();
+            loadUsers(); 
+            generateTableHeader();
+            loadItems();
+            setupKeyboardShortcuts();
+            updateUserApprovalStats();
+        }
 
-        searchInput.addEventListener('input', applyFilters);
+        // ===== USER INTERFACE UPDATES =====
+        function updateUIForUser() {
+            const user = userAuthSystem.currentUser;
+            const isAdmin = userAuthSystem.isAdmin();
+            
+            // Show/hide admin features
+            const adminButtons = document.querySelectorAll('.btn-add, .btn-print[onclick="exportToExcel()"], [onclick="openUserModal()"]');
+            const userManagementBtn = document.querySelector('[onclick="openUserModal()"]');
+            
+            if (isAdmin) {
+                // Show all admin features
+                adminButtons.forEach(btn => btn.style.display = 'inline-block');
+                if (userManagementBtn) userManagementBtn.style.display = 'inline-block';
+                
+                // Update header to show admin status
+                document.querySelector('.header h1').innerHTML = 
+                    '<i class="fas fa-tasks"></i> Task Management System <small style="font-size: 0.6em; color: #FFD700;">(Admin Mode)</small>';
+                    
+                // Show user approval stats for admin
+                document.getElementById('userApprovalStats').style.display = 'grid';
+            } else {
+                // Hide admin features for regular users
+                adminButtons.forEach(btn => btn.style.display = 'none');
+                if (userManagementBtn) userManagementBtn.style.display = 'none';
+                
+                // Update header for user mode
+                document.querySelector('.header h1').innerHTML = 
+                    `<i class="fas fa-tasks"></i> Task Management System <small style="font-size: 0.6em;">(User: ${user.name})</small>`;
+                    
+                // Hide user approval stats for regular users
+                document.getElementById('userApprovalStats').style.display = 'none';
+            }
+        }
+
+        // ===== INITIALIZATION =====
+        // Check if user is already logged in
+        if (userAuthSystem.isLoggedIn()) {
+            showTaskSystem();
+        }
 
         // Global event listeners for modals
         window.addEventListener('click', (e) => {
@@ -3798,21 +4535,14 @@
             if (e.target === userManagementModal) closeUserModal();
             if (e.target === userDeleteModal) closeUserDeleteModal();
             if (e.target === helpModal) closeHelpModal();
-            if (e.target === loginModal) closeLoginModal();
-            if (e.target === signupModal) closeSignupModal();
+            if (e.target === userDetailsModal) closeUserDetailsModal();
         });
 
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                closeFormModal();
-                closeDeleteModal();
-                closeUserModal();
-                closeUserDeleteModal();
-                closeHelpModal();
-                closeLoginModal();
-                closeSignupModal();
+                closeAllModals();
             }
         });
     </script>
 </body>
-                    </html>
+    </html>
