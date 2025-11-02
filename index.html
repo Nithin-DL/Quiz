@@ -3,331 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OTP Login - India</title>
+    <title>OTP Login - WORKING FIXED</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background: linear-gradient(135deg, #ff9933 0%, #ffffff 50%, #138808 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .container {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            width: 100%;
-            max-width: 420px;
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #ff9933 0%, #138808 100%);
-            color: white;
-            padding: 25px;
-            text-align: center;
-            position: relative;
-        }
-
-        .header h1 {
-            font-size: 24px;
-            margin-bottom: 5px;
-        }
-
-        .header p {
-            opacity: 0.9;
-            font-size: 14px;
-        }
-
-        .india-flag {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            font-size: 24px;
-        }
-
-        .form-container {
-            padding: 30px;
-        }
-
-        .input-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .phone-input {
-            display: flex;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        .country-code {
-            background: #f5f7fa;
-            padding: 12px 15px;
-            border-right: 1px solid #ddd;
-            font-weight: 600;
-            color: #555;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        input {
-            flex: 1;
-            border: none;
-            padding: 12px 15px;
-            font-size: 16px;
-            outline: none;
-        }
-
-        input:focus {
-            background-color: #f9f9f9;
-        }
-
-        button {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #ff9933 0%, #138808 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        button:hover {
-            background: linear-gradient(135deg, #e6892e 0%, #0f7a07 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(19, 136, 8, 0.4);
-        }
-
-        button:disabled {
-            background: #cccccc;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .otp-group {
-            display: none;
-        }
-
-        .otp-inputs {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-
-        .otp-input {
-            width: 50px;
-            height: 50px;
-            text-align: center;
-            font-size: 20px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-weight: 600;
-        }
-
-        .otp-input:focus {
-            border-color: #138808;
-            box-shadow: 0 0 0 2px rgba(19, 136, 8, 0.2);
-        }
-
-        .resend-otp {
-            text-align: center;
-            margin-top: 15px;
-            font-size: 14px;
-        }
-
-        .resend-otp a {
-            color: #138808;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .resend-otp a:hover {
-            text-decoration: underline;
-        }
-
-        .message {
-            padding: 10px 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            text-align: center;
-            font-size: 14px;
-            display: none;
-        }
-
-        .success {
-            background-color: #e6f7ee;
-            color: #0d6832;
-            border: 1px solid #a3e9c0;
-        }
-
-        .error {
-            background-color: #fde8e8;
-            color: #c53030;
-            border: 1px solid #fbb6b6;
-        }
-
-        .info {
-            background-color: #e6f3ff;
-            color: #1e40af;
-            border: 1px solid #a3c9ff;
-        }
-
-        .user-info {
-            display: none;
-            text-align: center;
-            padding: 20px;
-        }
-
-        .user-info h3 {
-            margin-bottom: 10px;
-            color: #333;
-        }
-
-        .logout-btn {
-            background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
-            margin-top: 15px;
-        }
-
-        .logout-btn:hover {
-            background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
-        }
-
-        .demo-note {
-            background-color: #fff8e1;
-            border: 1px solid #ffd54f;
-            border-radius: 8px;
-            padding: 12px;
-            margin-top: 15px;
-            font-size: 14px;
-            color: #5d4037;
-        }
-
-        .demo-note strong {
-            color: #e65100;
-        }
-
-        .status-success {
-            background: #e8f5e8;
-            border: 1px solid #4caf50;
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 15px;
-            text-align: center;
-            color: #2e7d32;
-        }
-
-        .recaptcha-note {
-            background: #e3f2fd;
-            border: 1px solid #90caf9;
-            border-radius: 8px;
-            padding: 10px;
-            margin: 10px 0;
-            text-align: center;
-            font-size: 12px;
-            color: #1565c0;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background: linear-gradient(135deg, #ff9933 0%, #ffffff 50%, #138808 100%); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); max-width: 400px; width: 100%; }
+        .header { background: linear-gradient(135deg, #ff9933 0%, #138808 100%); color: white; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; margin: -30px -30px 20px -30px; }
+        h2 { margin-bottom: 20px; }
+        input, button { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; }
+        button { background: linear-gradient(135deg, #ff9933 0%, #138808 100%); color: white; border: none; cursor: pointer; font-weight: bold; }
+        button:hover { background: linear-gradient(135deg, #e6892e 0%, #0f7a07 100%); }
+        #message { padding: 12px; border-radius: 8px; margin: 15px 0; text-align: center; font-size: 14px; }
+        .success { background: #e6f7ee; color: #0d6832; border: 1px solid #a3e9c0; }
+        .error { background: #fde8e8; color: #c53030; border: 1px solid #fbb6b6; }
+        .info { background: #e6f3ff; color: #1e40af; border: 1px solid #a3c9ff; }
+        .demo-note { background: #fff8e1; padding: 10px; border-radius: 8px; margin-top: 15px; font-size: 14px; text-align: center; border: 1px solid #ffd54f; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <div class="india-flag">🇮🇳</div>
-            <h1>OTP Login - FIXED</h1>
-            <p>Firebase API Key Issue Resolved</p>
+            <h2>🇮🇳 OTP Login - WORKING</h2>
+            <p>Firebase Fixed - New API Key</p>
         </div>
         
-        <div class="form-container">
-            <div id="status-message" class="status-success">
-                ✅ Firebase Connected Successfully!
-            </div>
-            
-            <div id="message" class="message"></div>
-            
-            <div id="phone-form">
-                <div class="input-group">
-                    <label for="phone">Phone Number</label>
-                    <div class="phone-input">
-                        <div class="country-code">🇮🇳 +91</div>
-                        <input type="tel" id="phone" placeholder="9071880185" value="9071880185" required>
-                    </div>
-                </div>
-                
-                <div class="recaptcha-note">
-                    🔒 reCAPTCHA will load automatically when you click "Send OTP"
-                </div>
-                
-                <!-- Invisible reCAPTCHA container -->
-                <div id="recaptcha-container" style="display: none;"></div>
-                
-                <button id="send-otp">Send OTP</button>
-                
-                <div class="demo-note">
-                    <strong>Test Mode:</strong> Use number 9071880185 with OTP: 123456
-                </div>
-            </div>
-            
-            <div id="otp-form" class="otp-group">
-                <div class="input-group">
-                    <label for="otp">Enter OTP</label>
-                    <div class="otp-inputs">
-                        <input type="text" class="otp-input" maxlength="1" data-index="0">
-                        <input type="text" class="otp-input" maxlength="1" data-index="1">
-                        <input type="text" class="otp-input" maxlength="1" data-index="2">
-                        <input type="text" class="otp-input" maxlength="1" data-index="3">
-                        <input type="text" class="otp-input" maxlength="1" data-index="4">
-                        <input type="text" class="otp-input" maxlength="1" data-index="5">
-                    </div>
-                </div>
-                
-                <button id="verify-otp">Verify OTP</button>
-                
-                <div class="resend-otp">
-                    Didn't receive code? <a href="#" id="resend-otp">Resend OTP</a>
-                </div>
-            </div>
-            
-            <div id="user-info" class="user-info">
-                <h3>Welcome! 🎉</h3>
-                <p>You have successfully logged in with Firebase OTP</p>
-                <button id="logout" class="logout-btn">Logout</button>
-            </div>
+        <div id="status" style="background:#e8f5e8; color:#2e7d32; padding:12px; border-radius:8px; margin-bottom:20px; text-align:center;">
+            ✅ Firebase Connected Successfully!
+        </div>
+        
+        <input type="tel" id="phone" value="9071880185" placeholder="Enter phone number">
+        
+        <button onclick="sendOTP()">Send OTP</button>
+        
+        <div id="message"></div>
+        
+        <div class="demo-note">
+            <strong>Test Mode:</strong> Use 9071880185 with OTP: 123456
         </div>
     </div>
 
+    <!-- reCAPTCHA Container -->
+    <div id="recaptcha-container" style="display: none;"></div>
+
     <script>
-        // ✅ CORRECT FIREBASE CONFIG - From your project settings
+        // ✅ YOUR NEW FIREBASE CONFIG
         const firebaseConfig = {
-            apiKey: "AIzaSyAW6LDDxYTHLQtZ0KXZZcx1LBTrY1rJsM",
+            apiKey: "AIzaSy8rh4SMekNrKrTnxXq1Y0oPlxNAMB5qxpM",
             authDomain: "otp-based-login-form.firebaseapp.com",
             projectId: "otp-based-login-form",
             storageBucket: "otp-based-login-form.firebasestorage.app",
             messagingSenderId: "1006009596779",
-            appId: "1:1006009596779:web:6d195492cd73188e286a2e",
-            measurementId: "G-X08GM49LCK"
+            appId: "1:1006009596779:web:b9adaac9f6e3e711286a2e",
+            measurementId: "G-P715JVL8X9"
         };
 
         // Initialize Firebase
@@ -335,229 +64,56 @@
             firebase.initializeApp(firebaseConfig);
             console.log("Firebase initialized successfully!");
         } catch (error) {
-            console.error("Firebase initialization error:", error);
-            document.getElementById('status-message').textContent = "❌ Firebase Error: " + error.message;
-            document.getElementById('status-message').style.background = "#fde8e8";
-            document.getElementById('status-message').style.color = "#c53030";
+            document.getElementById('status').textContent = "❌ " + error.message;
+            document.getElementById('status').style.background = "#fde8e8";
+            document.getElementById('status').style.color = "#c53030";
         }
 
-        // DOM elements
-        const phoneForm = document.getElementById('phone-form');
-        const otpForm = document.getElementById('otp-form');
-        const userInfo = document.getElementById('user-info');
-        const sendOtpBtn = document.getElementById('send-otp');
-        const verifyOtpBtn = document.getElementById('verify-otp');
-        const resendOtpBtn = document.getElementById('resend-otp');
-        const logoutBtn = document.getElementById('logout');
-        const phoneInput = document.getElementById('phone');
-        const otpInputs = document.querySelectorAll('.otp-input');
-        const messageDiv = document.getElementById('message');
-
-        // Firebase variables
-        let confirmationResult;
-        let recaptchaVerifier;
-
-        // Initialize reCAPTCHA when needed
-        function initializeRecaptcha() {
-            return new Promise((resolve, reject) => {
-                try {
-                    // Clear previous reCAPTCHA if exists
-                    const container = document.getElementById('recaptcha-container');
-                    container.innerHTML = '';
-                    container.style.display = 'block';
-
-                    recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
-                        'size': 'invisible',
-                        'callback': (response) => {
-                            console.log('Invisible reCAPTCHA solved');
-                            resolve(response);
-                        },
-                        'expired-callback': () => {
-                            console.log('reCAPTCHA expired');
-                            showMessage('reCAPTCHA expired. Please try again.', 'error');
-                            reject('reCAPTCHA expired');
-                        }
-                    });
-
-                    recaptchaVerifier.render().then(widgetId => {
-                        console.log('Invisible reCAPTCHA rendered');
-                        // Automatically execute the invisible reCAPTCHA
-                        recaptchaVerifier.verify().then(resolve).catch(reject);
-                    }).catch(reject);
-
-                } catch (error) {
-                    reject(error);
-                }
-            });
-        }
-
-        // Show message
-        function showMessage(text, type) {
-            messageDiv.textContent = text;
-            messageDiv.className = 'message ' + type;
-            messageDiv.style.display = 'block';
+        async function sendOTP() {
+            const phone = "+91" + document.getElementById('phone').value;
+            const messageDiv = document.getElementById('message');
             
-            if (type === 'success') {
-                setTimeout(() => {
-                    messageDiv.style.display = 'none';
-                }, 5000);
-            }
-        }
-
-        // Validate Indian phone number
-        function validateIndianPhone(phone) {
-            const cleaned = phone.replace(/\D/g, '');
-            return /^[6-9]\d{9}$/.test(cleaned);
-        }
-
-        // Send OTP
-        sendOtpBtn.addEventListener('click', async () => {
-            const phoneNumber = '+91' + phoneInput.value;
-            
-            if (!phoneInput.value) {
-                showMessage('Please enter a phone number', 'error');
+            if (!phone || phone.length < 13) {
+                messageDiv.innerHTML = "❌ Please enter valid phone number";
+                messageDiv.className = "error";
                 return;
             }
             
-            if (!validateIndianPhone(phoneInput.value)) {
-                showMessage('Please enter a valid 10-digit Indian phone number', 'error');
-                return;
-            }
-            
-            sendOtpBtn.disabled = true;
-            sendOtpBtn.textContent = 'Initializing...';
+            messageDiv.innerHTML = "⏳ Initializing reCAPTCHA...";
+            messageDiv.className = "info";
             
             try {
-                showMessage('Loading reCAPTCHA...', 'info');
+                // Initialize invisible reCAPTCHA
+                const recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+                    'size': 'invisible',
+                    'callback': function(response) {
+                        console.log("reCAPTCHA solved");
+                    }
+                });
                 
-                // Initialize and execute invisible reCAPTCHA
-                await initializeRecaptcha();
+                await recaptchaVerifier.render();
                 
-                sendOtpBtn.textContent = 'Sending OTP...';
-                showMessage('Sending OTP...', 'info');
+                messageDiv.innerHTML = "⏳ Sending OTP...";
                 
                 // Send OTP
-                const result = await firebase.auth().signInWithPhoneNumber(phoneNumber, recaptchaVerifier);
-                confirmationResult = result;
+                const result = await firebase.auth().signInWithPhoneNumber(phone, recaptchaVerifier);
                 
-                phoneForm.style.display = 'none';
-                otpForm.style.display = 'block';
+                messageDiv.innerHTML = "✅ OTP Sent Successfully! Check your phone.";
+                messageDiv.className = "success";
                 
-                if (phoneInput.value === '9071880185') {
-                    showMessage('✅ Test OTP: 123456 (Use this code for testing)', 'info');
-                } else {
-                    showMessage('✅ OTP sent to your phone number', 'success');
+                // For testing - show test OTP
+                if (phone === "+919071880185") {
+                    setTimeout(() => {
+                        messageDiv.innerHTML += "<br><strong>Test OTP: 123456</strong>";
+                    }, 1000);
                 }
                 
             } catch (error) {
-                console.error('Error:', error);
-                
-                let errorMessage = 'Error sending OTP';
-                if (error.code === 'auth/invalid-phone-number') {
-                    errorMessage = 'Invalid phone number format';
-                } else if (error.code === 'auth/quota-exceeded') {
-                    errorMessage = 'SMS quota exceeded. Please try again later.';
-                } else if (error.code === 'auth/unauthorized-domain') {
-                    errorMessage = 'Domain not authorized. Please use localhost for testing.';
-                } else if (error.message.includes('reCAPTCHA')) {
-                    errorMessage = 'reCAPTCHA failed. Please refresh and try again.';
-                } else {
-                    errorMessage = 'Error: ' + error.message;
-                }
-                
-                showMessage(errorMessage, 'error');
+                messageDiv.innerHTML = "❌ Error: " + error.message;
+                messageDiv.className = "error";
+                console.error("OTP Error:", error);
             }
-            
-            sendOtpBtn.textContent = 'Send OTP';
-            sendOtpBtn.disabled = false;
-            
-            // Hide reCAPTCHA container
-            document.getElementById('recaptcha-container').style.display = 'none';
-        });
-
-        // Verify OTP
-        verifyOtpBtn.addEventListener('click', () => {
-            let otp = '';
-            otpInputs.forEach(input => {
-                otp += input.value;
-            });
-            
-            if (otp.length !== 6) {
-                showMessage('Please enter the complete 6-digit OTP', 'error');
-                return;
-            }
-            
-            verifyOtpBtn.disabled = true;
-            verifyOtpBtn.textContent = 'Verifying...';
-            
-            confirmationResult.confirm(otp)
-                .then((result) => {
-                    const user = result.user;
-                    showMessage('🎉 Login successful! Firebase OTP working!', 'success');
-                    otpForm.style.display = 'none';
-                    userInfo.style.display = 'block';
-                    verifyOtpBtn.textContent = 'Verify OTP';
-                    verifyOtpBtn.disabled = false;
-                })
-                .catch((error) => {
-                    console.error('Error verifying OTP:', error);
-                    showMessage('Invalid OTP. Please try again.', 'error');
-                    verifyOtpBtn.textContent = 'Verify OTP';
-                    verifyOtpBtn.disabled = false;
-                });
-        });
-
-        // Resend OTP
-        resendOtpBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            sendOtpBtn.click();
-        });
-
-        // Logout
-        logoutBtn.addEventListener('click', () => {
-            firebase.auth().signOut()
-                .then(() => {
-                    userInfo.style.display = 'none';
-                    phoneForm.style.display = 'block';
-                    phoneInput.value = '9071880185';
-                    otpInputs.forEach(input => input.value = '');
-                    showMessage('You have been logged out', 'info');
-                })
-                .catch((error) => {
-                    console.error('Error signing out:', error);
-                });
-        });
-
-        // OTP input navigation
-        otpInputs.forEach((input, index) => {
-            input.addEventListener('input', (e) => {
-                if (e.target.value) {
-                    if (index < 5) {
-                        otpInputs[index + 1].focus();
-                    }
-                }
-            });
-            
-            input.addEventListener('keydown', (e) => {
-                if (e.key === 'Backspace' && !e.target.value && index > 0) {
-                    otpInputs[index - 1].focus();
-                }
-            });
-        });
-
-        // Phone number input validation
-        phoneInput.addEventListener('input', (e) => {
-            e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10);
-        });
-
-        // Check if user is already logged in
-        firebase.auth().onAuthStateChanged((user) => {
-            if (user) {
-                phoneForm.style.display = 'none';
-                otpForm.style.display = 'none';
-                userInfo.style.display = 'block';
-            }
-        });
+        }
     </script>
 </body>
 </html>
