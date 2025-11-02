@@ -7,7 +7,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <style>
-        /* Your existing CSS styles remain the same */
         * {
             margin: 0;
             padding: 0;
@@ -217,12 +216,6 @@
             background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
         }
 
-        .recaptcha-container {
-            margin-top: 15px;
-            display: flex;
-            justify-content: center;
-        }
-
         .demo-note {
             background-color: #fff8e1;
             border: 1px solid #ffd54f;
@@ -246,14 +239,25 @@
             text-align: center;
             color: #2e7d32;
         }
+
+        .recaptcha-note {
+            background: #e3f2fd;
+            border: 1px solid #90caf9;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 10px 0;
+            text-align: center;
+            font-size: 12px;
+            color: #1565c0;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <div class="india-flag">🇮🇳</div>
-            <h1>OTP Login - LIVE</h1>
-            <p>Firebase Connected - Ready for Real OTP</p>
+            <h1>OTP Login - FIXED</h1>
+            <p>Simple reCAPTCHA Solution</p>
         </div>
         
         <div class="form-container">
@@ -268,16 +272,21 @@
                     <label for="phone">Phone Number</label>
                     <div class="phone-input">
                         <div class="country-code">🇮🇳 +91</div>
-                        <input type="tel" id="phone" placeholder="Enter your 10-digit phone number" required>
+                        <input type="tel" id="phone" placeholder="9071880185" value="9071880185" required>
                     </div>
                 </div>
                 
-                <div class="recaptcha-container" id="recaptcha-container"></div>
+                <div class="recaptcha-note">
+                    🔒 reCAPTCHA will load automatically when you click "Send OTP"
+                </div>
+                
+                <!-- Invisible reCAPTCHA container -->
+                <div id="recaptcha-container" style="display: none;"></div>
                 
                 <button id="send-otp">Send OTP</button>
                 
                 <div class="demo-note">
-                    <strong>Test Mode:</strong> Use your test number +91 90718 80185 with OTP: 123456
+                    <strong>Test Mode:</strong> Use number 9071880185 with OTP: 123456
                 </div>
             </div>
             
@@ -342,31 +351,42 @@
         const phoneInput = document.getElementById('phone');
         const otpInputs = document.querySelectorAll('.otp-input');
         const messageDiv = document.getElementById('message');
-        const recaptchaContainer = document.getElementById('recaptcha-container');
 
         // Firebase variables
         let confirmationResult;
         let recaptchaVerifier;
 
-        // Initialize reCAPTCHA verifier
+        // Initialize reCAPTCHA when needed
         function initializeRecaptcha() {
-            recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
-                'size': 'normal',
-                'callback': (response) => {
-                    sendOtpBtn.disabled = false;
-                    showMessage('reCAPTCHA verified! You can send OTP now.', 'success');
-                },
-                'expired-callback': () => {
-                    sendOtpBtn.disabled = true;
-                    showMessage('reCAPTCHA expired. Please verify again.', 'error');
+            return new Promise((resolve, reject) => {
+                try {
+                    // Clear previous reCAPTCHA if exists
+                    const container = document.getElementById('recaptcha-container');
+                    container.innerHTML = '';
+                    container.style.display = 'block';
+
+                    recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+                        'size': 'invisible',
+                        'callback': (response) => {
+                            console.log('Invisible reCAPTCHA solved');
+                            resolve(response);
+                        },
+                        'expired-callback': () => {
+                            console.log('reCAPTCHA expired');
+                            showMessage('reCAPTCHA expired. Please try again.', 'error');
+                            reject('reCAPTCHA expired');
+                        }
+                    });
+
+                    recaptchaVerifier.render().then(widgetId => {
+                        console.log('Invisible reCAPTCHA rendered');
+                        // Automatically execute the invisible reCAPTCHA
+                        recaptchaVerifier.verify().then(resolve).catch(reject);
+                    }).catch(reject);
+
+                } catch (error) {
+                    reject(error);
                 }
-            });
-            
-            recaptchaVerifier.render().then(widgetId => {
-                console.log('reCAPTCHA widget rendered:', widgetId);
-            }).catch(error => {
-                console.error('reCAPTCHA render error:', error);
-                showMessage('Error loading reCAPTCHA. Please refresh.', 'error');
             });
         }
 
@@ -390,7 +410,7 @@
         }
 
         // Send OTP
-        sendOtpBtn.addEventListener('click', () => {
+        sendOtpBtn.addEventListener('click', async () => {
             const phoneNumber = '+91' + phoneInput.value;
             
             if (!phoneInput.value) {
@@ -404,45 +424,54 @@
             }
             
             sendOtpBtn.disabled = true;
-            sendOtpBtn.textContent = 'Sending OTP...';
+            sendOtpBtn.textContent = 'Initializing...';
             
-            firebase.auth().signInWithPhoneNumber(phoneNumber, recaptchaVerifier)
-                .then((result) => {
-                    confirmationResult = result;
-                    phoneForm.style.display = 'none';
-                    otpForm.style.display = 'block';
-                    
-                    if (phoneInput.value === '9071880185') {
-                        showMessage('Test OTP: 123456 (Use this code)', 'info');
-                    } else {
-                        showMessage('OTP sent to your phone number', 'success');
-                    }
-                    
-                    sendOtpBtn.textContent = 'Send OTP';
-                    sendOtpBtn.disabled = false;
-                })
-                .catch((error) => {
-                    console.error('Error sending OTP:', error);
-                    
-                    let errorMessage = 'Error sending OTP';
-                    if (error.code === 'auth/invalid-phone-number') {
-                        errorMessage = 'Invalid phone number format';
-                    } else if (error.code === 'auth/quota-exceeded') {
-                        errorMessage = 'SMS quota exceeded. Please try again later.';
-                    } else if (error.code === 'auth/unauthorized-domain') {
-                        errorMessage = 'Domain not authorized. Please use localhost for testing.';
-                    } else {
-                        errorMessage = 'Error: ' + error.message;
-                    }
-                    
-                    showMessage(errorMessage, 'error');
-                    sendOtpBtn.textContent = 'Send OTP';
-                    sendOtpBtn.disabled = false;
-                    
-                    // Reset reCAPTCHA on error
-                    recaptchaVerifier.clear();
-                    initializeRecaptcha();
-                });
+            try {
+                showMessage('Loading reCAPTCHA...', 'info');
+                
+                // Initialize and execute invisible reCAPTCHA
+                await initializeRecaptcha();
+                
+                sendOtpBtn.textContent = 'Sending OTP...';
+                showMessage('Sending OTP...', 'info');
+                
+                // Send OTP
+                const result = await firebase.auth().signInWithPhoneNumber(phoneNumber, recaptchaVerifier);
+                confirmationResult = result;
+                
+                phoneForm.style.display = 'none';
+                otpForm.style.display = 'block';
+                
+                if (phoneInput.value === '9071880185') {
+                    showMessage('✅ Test OTP: 123456 (Use this code for testing)', 'info');
+                } else {
+                    showMessage('✅ OTP sent to your phone number', 'success');
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                
+                let errorMessage = 'Error sending OTP';
+                if (error.code === 'auth/invalid-phone-number') {
+                    errorMessage = 'Invalid phone number format';
+                } else if (error.code === 'auth/quota-exceeded') {
+                    errorMessage = 'SMS quota exceeded. Please try again later.';
+                } else if (error.code === 'auth/unauthorized-domain') {
+                    errorMessage = 'Domain not authorized. Please use localhost for testing.';
+                } else if (error.message.includes('reCAPTCHA')) {
+                    errorMessage = 'reCAPTCHA failed. Please refresh and try again.';
+                } else {
+                    errorMessage = 'Error: ' + error.message;
+                }
+                
+                showMessage(errorMessage, 'error');
+            }
+            
+            sendOtpBtn.textContent = 'Send OTP';
+            sendOtpBtn.disabled = false;
+            
+            // Hide reCAPTCHA container
+            document.getElementById('recaptcha-container').style.display = 'none';
         });
 
         // Verify OTP
@@ -463,7 +492,7 @@
             confirmationResult.confirm(otp)
                 .then((result) => {
                     const user = result.user;
-                    showMessage('Login successful! Firebase OTP working! 🎉', 'success');
+                    showMessage('🎉 Login successful! Firebase OTP working!', 'success');
                     otpForm.style.display = 'none';
                     userInfo.style.display = 'block';
                     verifyOtpBtn.textContent = 'Verify OTP';
@@ -480,15 +509,7 @@
         // Resend OTP
         resendOtpBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            showMessage('Resending OTP...', 'info');
-            
-            recaptchaVerifier.clear();
-            initializeRecaptcha();
-            
-            // Auto-click send OTP after a delay
-            setTimeout(() => {
-                sendOtpBtn.click();
-            }, 1000);
+            sendOtpBtn.click();
         });
 
         // Logout
@@ -497,12 +518,9 @@
                 .then(() => {
                     userInfo.style.display = 'none';
                     phoneForm.style.display = 'block';
-                    phoneInput.value = '';
+                    phoneInput.value = '9071880185';
                     otpInputs.forEach(input => input.value = '');
                     showMessage('You have been logged out', 'info');
-                    
-                    recaptchaVerifier.clear();
-                    initializeRecaptcha();
                 })
                 .catch((error) => {
                     console.error('Error signing out:', error);
@@ -537,15 +555,6 @@
                 phoneForm.style.display = 'none';
                 otpForm.style.display = 'none';
                 userInfo.style.display = 'block';
-            } else {
-                initializeRecaptcha();
-            }
-        });
-
-        // Initialize the app
-        window.addEventListener('load', () => {
-            if (!firebase.auth().currentUser) {
-                initializeRecaptcha();
             }
         });
     </script>
