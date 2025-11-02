@@ -1,119 +1,122 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OTP Login - WORKING FIXED</title>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
-        body { background: linear-gradient(135deg, #ff9933 0%, #ffffff 50%, #138808 100%); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
-        .container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); max-width: 400px; width: 100%; }
-        .header { background: linear-gradient(135deg, #ff9933 0%, #138808 100%); color: white; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; margin: -30px -30px 20px -30px; }
-        h2 { margin-bottom: 20px; }
-        input, button { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; }
-        button { background: linear-gradient(135deg, #ff9933 0%, #138808 100%); color: white; border: none; cursor: pointer; font-weight: bold; }
-        button:hover { background: linear-gradient(135deg, #e6892e 0%, #0f7a07 100%); }
-        #message { padding: 12px; border-radius: 8px; margin: 15px 0; text-align: center; font-size: 14px; }
-        .success { background: #e6f7ee; color: #0d6832; border: 1px solid #a3e9c0; }
-        .error { background: #fde8e8; color: #c53030; border: 1px solid #fbb6b6; }
-        .info { background: #e6f3ff; color: #1e40af; border: 1px solid #a3c9ff; }
-        .demo-note { background: #fff8e1; padding: 10px; border-radius: 8px; margin-top: 15px; font-size: 14px; text-align: center; border: 1px solid #ffd54f; }
-    </style>
+<meta charset="UTF-8">
+<title>Mobile OTP Login</title>
+<style>
+body {
+  font-family: Arial;
+  background: #f2f2f2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+.container {
+  background: #fff;
+  padding: 25px;
+  border-radius: 8px;
+  width: 320px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+input {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+button {
+  width: 100%;
+  padding: 12px;
+  background: #0066ff;
+  color: #fff;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  margin-top: 5px;
+  border-radius: 5px;
+}
+#otp-box {
+  display: none;
+}
+</style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h2>🇮🇳 OTP Login - WORKING</h2>
-            <p>Firebase Fixed - New API Key</p>
-        </div>
-        
-        <div id="status" style="background:#e8f5e8; color:#2e7d32; padding:12px; border-radius:8px; margin-bottom:20px; text-align:center;">
-            ✅ Firebase Connected Successfully!
-        </div>
-        
-        <input type="tel" id="phone" value="9071880185" placeholder="Enter phone number">
-        
-        <button onclick="sendOTP()">Send OTP</button>
-        
-        <div id="message"></div>
-        
-        <div class="demo-note">
-            <strong>Test Mode:</strong> Use 9071880185 with OTP: 123456
-        </div>
+
+<div class="container">
+    <h3>Mobile OTP Login</h3>
+
+    <input type="text" id="phone" placeholder="Enter Mobile Number (e.g. +91xxxxxxxxxx)">
+    <div id="recaptcha-container"></div>
+    <button onclick="sendOTP()">Send OTP</button>
+
+    <div id="otp-box">
+        <input type="text" id="otp" placeholder="Enter OTP">
+        <button onclick="verifyOTP()">Verify OTP</button>
     </div>
+</div>
 
-    <!-- reCAPTCHA Container -->
-    <div id="recaptcha-container" style="display: none;"></div>
+<!-- Firebase Config -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+import { 
+  getAuth, 
+  RecaptchaVerifier, 
+  signInWithPhoneNumber 
+} from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
 
-    <script>
-        // ✅ YOUR NEW FIREBASE CONFIG
-        const firebaseConfig = {
-            apiKey: "AIzaSy8rh4SMekNrKrTnxXq1Y0oPlxNAMB5qxpM",
-            authDomain: "otp-based-login-form.firebaseapp.com",
-            projectId: "otp-based-login-form",
-            storageBucket: "otp-based-login-form.firebasestorage.app",
-            messagingSenderId: "1006009596779",
-            appId: "1:1006009596779:web:b9adaac9f6e3e711286a2e",
-            measurementId: "G-P715JVL8X9"
-        };
+const firebaseConfig = {
+  apiKey: "AIzaSyD9IrRF15IfzYEfwQTl_JA_ie4SyaPCUfU",
+  authDomain: "otp-login-form-e13e2.firebaseapp.com",
+  projectId: "otp-login-form-e13e2",
+  storageBucket: "otp-login-form-e13e2.firebasestorage.app",
+  messagingSenderId: "345706715094",
+  appId: "1:345706715094:web:d0fd55ebe741ea1871b677"
+};
 
-        // Initialize Firebase
-        try {
-            firebase.initializeApp(firebaseConfig);
-            console.log("Firebase initialized successfully!");
-        } catch (error) {
-            document.getElementById('status').textContent = "❌ " + error.message;
-            document.getElementById('status').style.background = "#fde8e8";
-            document.getElementById('status').style.color = "#c53030";
-        }
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
-        async function sendOTP() {
-            const phone = "+91" + document.getElementById('phone').value;
-            const messageDiv = document.getElementById('message');
-            
-            if (!phone || phone.length < 13) {
-                messageDiv.innerHTML = "❌ Please enter valid phone number";
-                messageDiv.className = "error";
-                return;
-            }
-            
-            messageDiv.innerHTML = "⏳ Initializing reCAPTCHA...";
-            messageDiv.className = "info";
-            
-            try {
-                // Initialize invisible reCAPTCHA
-                const recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
-                    'size': 'invisible',
-                    'callback': function(response) {
-                        console.log("reCAPTCHA solved");
-                    }
-                });
-                
-                await recaptchaVerifier.render();
-                
-                messageDiv.innerHTML = "⏳ Sending OTP...";
-                
-                // Send OTP
-                const result = await firebase.auth().signInWithPhoneNumber(phone, recaptchaVerifier);
-                
-                messageDiv.innerHTML = "✅ OTP Sent Successfully! Check your phone.";
-                messageDiv.className = "success";
-                
-                // For testing - show test OTP
-                if (phone === "+919071880185") {
-                    setTimeout(() => {
-                        messageDiv.innerHTML += "<br><strong>Test OTP: 123456</strong>";
-                    }, 1000);
-                }
-                
-            } catch (error) {
-                messageDiv.innerHTML = "❌ Error: " + error.message;
-                messageDiv.className = "error";
-                console.error("OTP Error:", error);
-            }
-        }
-    </script>
+// Recaptcha Setup
+window.recaptchaVerifier = new RecaptchaVerifier(
+  auth,
+  "recaptcha-container",
+  {
+    size: "normal",
+  }
+);
+
+// Send OTP
+window.sendOTP = function () {
+  const phone = document.getElementById("phone").value;
+  if (phone.length < 10) return alert("Enter valid phone number");
+
+  signInWithPhoneNumber(auth, phone, window.recaptchaVerifier)
+    .then((confirmationResult) => {
+      window.confirmationResult = confirmationResult;
+      alert("OTP Sent!");
+      document.getElementById("otp-box").style.display = "block";
+    })
+    .catch((error) => {
+      alert(error.message);
+    });
+}
+
+// Verify OTP
+window.verifyOTP = function () {
+  const otp = document.getElementById("otp").value;
+  confirmationResult.confirm(otp)
+    .then((result) => {
+      alert("✅ Login Successful");
+      console.log("User:", result.user);
+    })
+    .catch((error) => {
+      alert("❌ Invalid OTP");
+    });
+}
+</script>
+
 </body>
 </html>
