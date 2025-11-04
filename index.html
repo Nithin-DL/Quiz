@@ -2,76 +2,124 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OTP Login | Earn Tasks</title>
+<title>Mobile OTP Login</title>
 <style>
-  body {
-    font-family: 'Poppins', sans-serif;
-    background: linear-gradient(135deg, #3b82f6, #06b6d4);
-    display: flex; justify-content: center; align-items: center;
-    height: 100vh; margin: 0; color: #fff;
-  }
-  .container {
-    background: white; color: #111;
-    border-radius: 16px; box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-    padding: 30px; width: 360px; text-align: center;
-  }
-  h2 { color: #2563eb; margin-bottom: 15px; }
-  input {
-    width: 100%; padding: 12px; margin: 10px 0;
-    border-radius: 8px; border: 1px solid #ccc; font-size: 16px;
-  }
-  .otp-input { display: flex; justify-content: center; gap: 8px; }
-  .otp-input input {
-    width: 40px; text-align: center; font-size: 18px;
-  }
-  button {
-    width: 100%; background: #2563eb; border: none;
-    color: white; padding: 12px; border-radius: 8px;
-    font-size: 16px; cursor: pointer; margin-top: 8px;
-    transition: 0.3s;
-  }
-  button:hover { background: #1d4ed8; }
-  #resendBtn { background: #10b981; display: none; }
-  .timer { color: #ef4444; font-size: 14px; margin-top: 8px; }
-
-  /* Dashboard */
-  #dashboard { display: none; }
-  .wallet {
-    background: #2563eb; color: #fff; padding: 15px;
-    border-radius: 10px; margin-bottom: 20px;
-  }
-  .tasks div {
-    background: #f1f5f9; margin: 8px 0; padding: 10px;
-    border-radius: 8px; cursor: pointer;
-  }
+body {
+  font-family: Arial;
+  background: #f2f2f2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+.container {
+  background: #fff;
+  padding: 25px;
+  border-radius: 8px;
+  width: 320px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+input {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+button {
+  width: 100%;
+  padding: 12px;
+  background: #0066ff;
+  color: #fff;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  margin-top: 5px;
+  border-radius: 5px;
+}
+#otp-box {
+  display: none;
+}
 </style>
 </head>
 <body>
-<div class="container" id="loginDiv">
-  <h2>Login with Mobile</h2>
-  <input type="tel" id="phoneNumber" placeholder="Enter Mobile Number (10 digits)" maxlength="10">
-  <div id="recaptcha-container"></div>
-  <button id="sendOtpBtn">Send OTP</button>
 
-  <div id="otpDiv" style="display:none;">
-    <div class="otp-input">
-      <input type="text" maxlength="1">
-      <input type="text" maxlength="1">
-      <input type="text" maxlength="1">
-      <input type="text" maxlength="1">
-      <input type="text" maxlength="1">
-      <input type="text" maxlength="1">
+<div class="container">
+    <h3>Mobile OTP Login</h3>
+
+    <input type="text" id="phone" placeholder="Enter Mobile Number (e.g. +91xxxxxxxxxx)">
+    <div id="recaptcha-container"></div>
+    <button onclick="sendOTP()">Send OTP</button>
+
+    <div id="otp-box">
+        <input type="text" id="otp" placeholder="Enter OTP">
+        <button onclick="verifyOTP()">Verify OTP</button>
     </div>
-    <div class="timer" id="timerText"></div>
-    <button id="verifyOtpBtn">Verify OTP</button>
-    <button id="resendBtn">Resend OTP</button>
-  </div>
 </div>
 
-<div class="container" id="dashboard">
-  <h2>Welcome 👋</h2>
-  <div class="wallet">
+<!-- Firebase Config -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+import { 
+  getAuth, 
+  RecaptchaVerifier, 
+  signInWithPhoneNumber 
+} from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD9IrRF15IfzYEfwQTl_JA_ie4SyaPCUfU",
+  authDomain: "otp-login-form-e13e2.firebaseapp.com",
+  projectId: "otp-login-form-e13e2",
+  storageBucket: "otp-login-form-e13e2.firebasestorage.app",
+  messagingSenderId: "345706715094",
+  appId: "1:345706715094:web:d0fd55ebe741ea1871b677"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+// Recaptcha Setup
+window.recaptchaVerifier = new RecaptchaVerifier(
+  auth,
+  "recaptcha-container",
+  {
+    size: "normal",
+  }
+);
+
+// Send OTP
+window.sendOTP = function () {
+  const phone = document.getElementById("phone").value;
+  if (phone.length < 10) return alert("Enter valid phone number");
+
+  signInWithPhoneNumber(auth, phone, window.recaptchaVerifier)
+    .then((confirmationResult) => {
+      window.confirmationResult = confirmationResult;
+      alert("OTP Sent!");
+      document.getElementById("otp-box").style.display = "block";
+    })
+    .catch((error) => {
+      alert(error.message);
+    });
+}
+
+// Verify OTP
+window.verifyOTP = function () {
+  const otp = document.getElementById("otp").value;
+  confirmationResult.confirm(otp)
+    .then((result) => {
+      alert("✅ Login Successful");
+      console.log("User:", result.user);
+    })
+    .catch((error) => {
+      alert("❌ Invalid OTP");
+    });
+}
+</script>
+
+</body>
+</html>  <div class="wallet">
     <h3>Wallet Balance: ₹<span id="walletBalance">0</span></h3>
   </div>
   <div class="tasks">
