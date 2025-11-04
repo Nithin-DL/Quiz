@@ -1,54 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sign In / Sign Up | OTP Login</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-  <script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Signup & Login - Firebase Auth</title>
   <style>
-    body { font-family: 'Poppins', sans-serif; background: #f9fafb; }
-    .hidden { display: none; }
-    .otp-box { width: 2.5rem; height: 2.5rem; text-align: center; font-size: 1.25rem; border: 1px solid #d1d5db; border-radius: 0.375rem; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #6a11cb, #2575fc);
+      color: #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: #fff;
+      padding: 30px 25px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+    h2 {
+      color: #444;
+      margin-bottom: 20px;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 15px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background: #2575fc;
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #1b5edc;
+    }
+    .toggle {
+      margin-top: 12px;
+      color: #555;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .link {
+      color: #2575fc;
+      cursor: pointer;
+    }
   </style>
 </head>
-<body class="flex items-center justify-center min-h-screen">
+<body>
+  <div class="container">
+    <h2 id="formTitle">Signup</h2>
 
-  <div class="bg-white shadow-2xl rounded-2xl w-full max-w-md p-8">
-    <h2 class="text-3xl font-semibold text-center mb-6" id="formTitle">Sign Up</h2>
+    <input type="email" id="email" placeholder="Email" />
+    <input type="password" id="password" placeholder="Password" />
+    
+    <button id="signupBtn">Signup</button>
+    <button id="loginBtn" style="display:none;">Login</button>
 
-    <div class="space-y-4">
-      <input type="email" id="email" placeholder="Enter Email" class="w-full border rounded-lg p-3 focus:ring focus:ring-blue-300">
-      <input type="text" id="mobile" placeholder="Enter Mobile Number (with country code, e.g. +91)" class="w-full border rounded-lg p-3 focus:ring focus:ring-blue-300">
-      <input type="password" id="password" placeholder="Enter Password" class="w-full border rounded-lg p-3 focus:ring focus:ring-blue-300">
-      <div id="recaptcha-container" class="mt-2"></div>
-
-      <div id="otpSection" class="hidden space-y-3">
-        <div class="flex justify-between">
-          <input class="otp-box" maxlength="1" />
-          <input class="otp-box" maxlength="1" />
-          <input class="otp-box" maxlength="1" />
-          <input class="otp-box" maxlength="1" />
-          <input class="otp-box" maxlength="1" />
-          <input class="otp-box" maxlength="1" />
-        </div>
-        <button id="verifyOtpBtn" class="w-full bg-green-500 text-white p-3 rounded-lg hover:bg-green-600">Verify OTP</button>
-      </div>
-
-      <button id="signupBtn" class="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700">Sign Up</button>
-      <p class="text-center text-sm text-gray-600">
-        <span id="toggleText">Already have an account?</span>
-        <button id="toggleForm" class="text-blue-500 font-semibold">Sign In</button>
-      </p>
-    </div>
-
-    <p id="message" class="text-center mt-4 text-sm font-medium text-gray-600"></p>
+    <p class="toggle" id="toggleText">Already have an account? <span class="link" id="toggleLink">Login</span></p>
+    <p class="link" id="forgotPassword">Forgot Password?</p>
+    <p class="link" id="resendVerification" style="display:none;">Resend Verification Email</p>
   </div>
 
+  <!-- Firebase -->
   <script type="module">
-    // Firebase config
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js";
+    import { 
+      getAuth, 
+      createUserWithEmailAndPassword, 
+      signInWithEmailAndPassword, 
+      sendEmailVerification, 
+      sendPasswordResetEmail 
+    } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
+
     const firebaseConfig = {
       apiKey: "AIzaSyDq59CI8-m99XYFnC3j3Gng82QM59ClfAw",
       authDomain: "signup-form-and-login-form.firebaseapp.com",
@@ -59,87 +99,94 @@
       measurementId: "G-2KFXZ65BND"
     };
 
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js";
-    import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, createUserWithEmailAndPassword, signInWithEmailAndPassword } 
-    from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
-
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    let confirmationResult;
 
-    const email = document.getElementById('email');
-    const mobile = document.getElementById('mobile');
-    const password = document.getElementById('password');
-    const message = document.getElementById('message');
-    const otpSection = document.getElementById('otpSection');
-    const signupBtn = document.getElementById('signupBtn');
-    const verifyOtpBtn = document.getElementById('verifyOtpBtn');
-    const toggleForm = document.getElementById('toggleForm');
-    const formTitle = document.getElementById('formTitle');
-    const toggleText = document.getElementById('toggleText');
-    let isSignUp = true;
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const signupBtn = document.getElementById("signupBtn");
+    const loginBtn = document.getElementById("loginBtn");
+    const toggleLink = document.getElementById("toggleLink");
+    const formTitle = document.getElementById("formTitle");
+    const toggleText = document.getElementById("toggleText");
+    const forgotPassword = document.getElementById("forgotPassword");
+    const resendVerification = document.getElementById("resendVerification");
 
-    toggleForm.addEventListener('click', () => {
-      isSignUp = !isSignUp;
-      formTitle.textContent = isSignUp ? "Sign Up" : "Sign In";
-      signupBtn.textContent = isSignUp ? "Sign Up" : "Sign In";
-      toggleText.textContent = isSignUp ? "Already have an account?" : "Don't have an account?";
-      toggleForm.textContent = isSignUp ? "Sign In" : "Sign Up";
+    let isSignup = true;
+
+    // Toggle Form
+    toggleLink.addEventListener("click", () => {
+      isSignup = !isSignup;
+      formTitle.textContent = isSignup ? "Signup" : "Login";
+      signupBtn.style.display = isSignup ? "block" : "none";
+      loginBtn.style.display = isSignup ? "none" : "block";
+      forgotPassword.style.display = isSignup ? "none" : "block";
+      resendVerification.style.display = isSignup ? "none" : "block";
+      toggleText.innerHTML = isSignup 
+        ? 'Already have an account? <span class="link" id="toggleLink">Login</span>'
+        : "Don't have an account? <span class='link' id='toggleLink'>Signup</span>";
     });
 
-    // reCAPTCHA setup
-    window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-      size: 'normal',
-      callback: (response) => {}
-    });
+    // Signup
+    signupBtn.addEventListener("click", async () => {
+      const email = emailInput.value.trim();
+      const password = passwordInput.value.trim();
 
-    signupBtn.addEventListener('click', async () => {
-      message.textContent = "";
-
-      if (mobile.value.trim() !== "") {
-        // Phone sign-in
-        try {
-          const appVerifier = window.recaptchaVerifier;
-          const result = await signInWithPhoneNumber(auth, mobile.value, appVerifier);
-          confirmationResult = result;
-          otpSection.classList.remove('hidden');
-          message.textContent = "OTP sent successfully!";
-          message.classList.add('text-green-600');
-        } catch (error) {
-          message.textContent = "Error: " + error.message;
-          message.classList.add('text-red-600');
-        }
-      } else if (email.value && password.value) {
-        try {
-          if (isSignUp) {
-            await createUserWithEmailAndPassword(auth, email.value, password.value);
-            message.textContent = "Account created successfully!";
-            message.classList.add('text-green-600');
-          } else {
-            await signInWithEmailAndPassword(auth, email.value, password.value);
-            message.textContent = "Signed in successfully!";
-            message.classList.add('text-green-600');
-          }
-        } catch (error) {
-          message.textContent = "Error: " + error.message;
-          message.classList.add('text-red-600');
-        }
-      } else {
-        message.textContent = "Please fill all required fields.";
-        message.classList.add('text-red-600');
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        await sendEmailVerification(user);
+        alert("✅ Signup successful! Verification email sent. Please verify your email before login.");
+      } catch (error) {
+        alert("Signup Error: " + error.message);
       }
     });
 
-    verifyOtpBtn.addEventListener('click', async () => {
-      const otpInputs = document.querySelectorAll('.otp-box');
-      const otp = Array.from(otpInputs).map(i => i.value).join('');
+    // Login
+    loginBtn.addEventListener("click", async () => {
+      const email = emailInput.value.trim();
+      const password = passwordInput.value.trim();
+
       try {
-        await confirmationResult.confirm(otp);
-        message.textContent = "Phone verified successfully!";
-        message.classList.add('text-green-600');
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        if (user.emailVerified) {
+          alert("✅ Login successful!");
+          // Redirect to dashboard or another page
+        } else {
+          alert("⚠️ Please verify your email first.");
+        }
       } catch (error) {
-        message.textContent = "Invalid OTP!";
-        message.classList.add('text-red-600');
+        alert("Login Error: " + error.message);
+      }
+    });
+
+    // Forgot Password
+    forgotPassword.addEventListener("click", async () => {
+      const email = emailInput.value.trim();
+      if (!email) return alert("Please enter your email to reset password.");
+
+      try {
+        await sendPasswordResetEmail(auth, email);
+        alert("📩 Password reset email sent! Check your inbox.");
+      } catch (error) {
+        alert("Error: " + error.message);
+      }
+    });
+
+    // Resend Verification
+    resendVerification.addEventListener("click", async () => {
+      const user = auth.currentUser;
+      if (user) {
+        try {
+          await sendEmailVerification(user);
+          alert("✅ Verification email re-sent!");
+        } catch (error) {
+          alert("Error sending verification email: " + error.message);
+        }
+      } else {
+        alert("Please log in first to resend verification email.");
       }
     });
   </script>
