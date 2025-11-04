@@ -1,125 +1,506 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Firebase OTP Login</title>
-  <script type="module">
-    // ------------------- Import Firebase -------------------
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-    import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>OTP Login + Firestore Wallet Demo</title>
+<style>
+  /* ---------- Base ---------- */
+  *{box-sizing:border-box;font-family:Inter, Poppins, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;}
+  html,body{height:100%;margin:0;background:linear-gradient(135deg,#6e8efb,#a777e3);display:flex;align-items:center;justify-content:center;padding:18px;}
+  .card{background:rgba(255,255,255,0.95);backdrop-filter:blur(4px);border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,0.15);width:380px;max-width:96%;padding:20px;transition:transform .25s}
+  h2{margin:0 0 12px 0;color:#222;font-size:20px}
+  input[type="tel"], input[type="text"], input[type="number"]{width:100%;padding:12px;border-radius:10px;border:1.5px solid #e6e6f0;font-size:15px;outline:none}
+  input:focus{border-color:#6e8efb;box-shadow:0 6px 20px rgba(110,142,251,0.12)}
+  .btn{display:inline-block;width:100%;padding:12px;border-radius:10px;border:0;background:linear-gradient(45deg,#ff7eb3,#ff758c);color:#fff;font-weight:700;font-size:15px;cursor:pointer}
+  .muted{color:#666;font-size:13px}
+  .error{color:#b04242;font-size:13px;margin-top:8px;display:none}
 
-    // ------------------- Firebase Config -------------------
-    const firebaseConfig = {
-      apiKey: "AIzaSyCX036WRMWoiH0acazsLE8o-JWlOQQiByY",
-      authDomain: "otp-login-6c7bf.firebaseapp.com",
-      projectId: "otp-login-6c7bf",
-      storageBucket: "otp-login-6c7bf.firebasestorage.app",
-      messagingSenderId: "1091262594139",
-      appId: "1:1091262594139:web:4a7295747c3f7134d5937e"
-    };
+  /* OTP */
+  .otp-row{display:flex;gap:8px;justify-content:center;margin:16px 0}
+  .otp-row input{width:44px;height:50px;text-align:center;font-size:20px;border-radius:8px;border:2px solid #eee}
+  .timer{font-size:13px;color:#444;margin-top:8px;text-align:center}
+  .resend{background:none;border:none;color:#6e8efb;font-weight:700;cursor:pointer;text-decoration:underline;margin-top:8px}
+  .resend[disabled]{color:#bbb;cursor:not-allowed;text-decoration:none}
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    auth.languageCode = 'en';
+  /* Dashboard */
+  #dashboard{display:none;width:380px;max-width:96%;}
+  .topbar{background:linear-gradient(45deg,#6e8efb,#a777e3);color:#fff;padding:12px;border-radius:12px 12px 0 0;text-align:center;font-weight:700}
+  .wallet{background:linear-gradient(90deg,#42e695,#3bb2b8);color:#fff;padding:14px;border-radius:12px;margin:14px 0;font-size:18px;font-weight:700;display:flex;justify-content:space-between;align-items:center}
+  .wallet .balance{font-size:20px}
+  .controls{display:flex;gap:10px}
+  .small-btn{padding:8px 10px;border-radius:10px;border:0;background:linear-gradient(90deg,#6e8efb,#a777e3);color:#fff;font-weight:700;cursor:pointer}
 
-    // ------------------- UI Elements -------------------
-    const phoneInput = document.getElementById('phone');
-    const otpInput = document.getElementById('otp');
-    const sendBtn = document.getElementById('sendBtn');
-    const verifyBtn = document.getElementById('verifyBtn');
-    const statusBox = document.getElementById('status');
+  .task{background:#fff;border-radius:10px;border:1px solid #eef0fb;padding:12px;margin-bottom:10px;display:flex;flex-direction:column}
+  .task h4{margin:0 0 6px 0;font-size:15px}
+  .task .desc{font-size:13px;color:#666;margin-bottom:8px}
+  .task .complete-btn{padding:10px;border-radius:8px;border:0;background:linear-gradient(90deg,#42a5f5,#7e57c2);color:#fff;font-weight:700;cursor:pointer}
 
-    // ------------------- reCAPTCHA Setup -------------------
-    window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-      size: 'invisible',
-      callback: (response) => {
-        console.log('Recaptcha verified');
-      }
-    });
+  .progress-bar{height:10px;background:#eee;border-radius:8px;overflow:hidden;margin:10px 0}
+  .progress-fill{height:100%;width:0%;background:linear-gradient(90deg,#42e695,#3bb2b8);transition:width .6s}
 
-    // ------------------- Send OTP -------------------
-    let confirmationResult;
+  .success-msg{color:green;font-weight:700;text-align:center;margin-top:8px;display:none}
 
-    sendBtn.addEventListener('click', async () => {
-      const phoneNumber = "+91" + phoneInput.value.trim();
-      statusBox.textContent = "Sending OTP...";
-      try {
-        confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, window.recaptchaVerifier);
-        statusBox.textContent = "OTP sent successfully!";
-      } catch (error) {
-        statusBox.textContent = "Error: " + error.message;
-      }
-    });
+  /* Animations & visual */
+  .pulse{animation:walletPulse .75s ease}
+  @keyframes walletPulse{0%{transform:scale(1)}50%{transform:scale(1.04);box-shadow:0 8px 30px rgba(66,230,149,0.2)}100%{transform:scale(1)}}
 
-    // ------------------- Verify OTP -------------------
-    verifyBtn.addEventListener('click', async () => {
-      const otpCode = otpInput.value.trim();
-      statusBox.textContent = "Verifying OTP...";
-      try {
-        const result = await confirmationResult.confirm(otpCode);
-        const user = result.user;
-        statusBox.textContent = "✅ Login Success! Welcome " + user.phoneNumber;
-      } catch (error) {
-        statusBox.textContent = "❌ Invalid OTP: " + error.message;
-      }
-    });
-  </script>
+  .coin{position:fixed;font-size:28px;pointer-events:none;animation:coinFloat 1100ms ease-out forwards;z-index:9999}
+  @keyframes coinFloat{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-160px) scale(.8)}}
 
-  <style>
-    body {
-      font-family: Poppins, sans-serif;
-      background: #f4f7fb;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    .container {
-      background: white;
-      padding: 30px;
-      border-radius: 16px;
-      box-shadow: 0 5px 25px rgba(0,0,0,0.1);
-      width: 300px;
-      text-align: center;
-    }
-    h2 { color: #333; margin-bottom: 20px; }
-    input {
-      width: 90%;
-      padding: 10px;
-      margin: 8px 0;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 16px;
-    }
-    button {
-      width: 95%;
-      padding: 10px;
-      background: #007bff;
-      border: none;
-      color: white;
-      border-radius: 8px;
-      font-size: 16px;
-      margin-top: 10px;
-      cursor: pointer;
-    }
-    button:hover { background: #0056b3; }
-    #status {
-      margin-top: 15px;
-      font-size: 14px;
-      color: #333;
-    }
-  </style>
+  /* Toast */
+  .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:22px;background:#222;color:#fff;padding:10px 16px;border-radius:10px;opacity:0;pointer-events:none;z-index:9999}
+  .toast.show{opacity:1;pointer-events:auto;transition:opacity .3s}
+
+  @media (max-width:420px){ .card{padding:16px} .wallet{font-size:16px} }
+</style>
 </head>
 <body>
-  <div class="container">
-    <h2>OTP Login</h2>
-    <input type="number" id="phone" placeholder="Enter Mobile (10 digits)" />
-    <div id="recaptcha-container"></div>
-    <button id="sendBtn">Send OTP</button>
-    <input type="number" id="otp" placeholder="Enter OTP" />
-    <button id="verifyBtn">Verify OTP</button>
-    <div id="status"></div>
+
+<!-- LOGIN CARD -->
+<div class="card" id="loginCard" aria-live="polite">
+  <h2>Login with Mobile</h2>
+  <div class="muted">Enter your mobile number to get OTP (demo)</div>
+  <div style="height:12px"></div>
+  <input id="mobile" type="tel" placeholder="Enter 10-digit mobile" maxlength="10" />
+  <div class="error" id="mobileError">Enter valid 10-digit mobile number</div>
+  <div style="height:12px"></div>
+  <button class="btn" id="sendOtpBtn">Send OTP</button>
+  <div style="height:10px"></div>
+  <div class="muted" style="font-size:13px;text-align:center">Demo OTP: <strong>123456</strong></div>
+</div>
+
+<!-- OTP CARD -->
+<div class="card" id="otpCard" style="display:none">
+  <h2>Enter 6-digit OTP</h2>
+  <div id="otpInfo" class="muted" style="text-align:center;margin-bottom:8px"></div>
+  <div class="otp-row" id="otpInputs">
+    <input maxlength="1" inputmode="numeric" pattern="[0-9]*" />
+    <input maxlength="1" inputmode="numeric" pattern="[0-9]*" />
+    <input maxlength="1" inputmode="numeric" pattern="[0-9]*" />
+    <input maxlength="1" inputmode="numeric" pattern="[0-9]*" />
+    <input maxlength="1" inputmode="numeric" pattern="[0-9]*" />
+    <input maxlength="1" inputmode="numeric" pattern="[0-9]*" />
   </div>
+  <button class="btn" id="verifyOtpBtn">Verify OTP</button>
+  <div class="timer" id="otpTimer">Resend available in 03:00</div>
+  <div style="text-align:center"><button id="resendBtn" class="resend" disabled>Resend OTP</button></div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" style="display:none">
+  <div class="topbar" id="welcomeText">Welcome</div>
+  <div class="card" style="padding:14px 18px 18px">
+    <div class="wallet" id="walletCard">
+      <div>
+        <div style="font-size:13px;opacity:.95">💰 Wallet</div>
+        <div class="balance" id="walletText">₹0.00</div>
+      </div>
+      <div class="controls">
+        <button class="small-btn" id="dailyBonusBtn">Daily Bonus</button>
+        <button class="small-btn" id="withdrawBtn">Withdraw</button>
+      </div>
+    </div>
+
+    <div style="margin-top:6px;font-size:13px;color:#555">Task Progress</div>
+    <div class="progress-bar" aria-hidden="true"><div id="progressFill" class="progress-fill"></div></div>
+
+    <!-- Tasks -->
+    <div id="tasksWrap" style="margin-top:8px">
+      <div class="task" id="task1">
+        <h4>📱 Share app link on WhatsApp</h4>
+        <div class="desc">Share and get credited after admin verification (demo auto-credit)</div>
+        <button class="complete-btn" onclick="completeTask(1,10)">Complete Task +₹10</button>
+      </div>
+      <div class="task" id="task2">
+        <h4>🧾 Fill feedback form</h4>
+        <div class="desc">Short feedback form. (demo auto-credit)</div>
+        <button class="complete-btn" onclick="completeTask(2,15)">Complete Task +₹15</button>
+      </div>
+      <div class="task" id="task3">
+        <h4>🎥 Watch promotional video</h4>
+        <div class="desc">Watch a short video. (demo)</div>
+        <button class="complete-btn" onclick="completeTask(3,20)">Complete Task +₹20</button>
+      </div>
+    </div>
+
+    <div class="success-msg" id="successMsg"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast" role="status"></div>
+
+<!-- Firebase (compat) -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+<script>
+/* ---------- Your Firebase config (from you) ---------- */
+const firebaseConfig = {
+  apiKey: "AIzaSyCX036WRMWoiH0acazsLE8o-JWlOQQiByY",
+  authDomain: "otp-login-6c7bf.firebaseapp.com",
+  projectId: "otp-login-6c7bf",
+  storageBucket: "otp-login-6c7bf.firebasestorage.app",
+  messagingSenderId: "1091262594139",
+  appId: "1:1091262594139:web:4a7295747c3f7134d5937e"
+};
+
+/* ---------- Initialize Firebase ---------- */
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+/* ---------- State & Persistence ---------- */
+const storage = window.localStorage;
+let mobileNumber = null;
+let username = null;
+let wallet = 0;
+let completedTasks = JSON.parse(storage.getItem('completedTasks') || '[]');
+let lastDailyBonus = storage.getItem('lastDailyBonus') || null;
+
+/* ---------- Elements ---------- */
+const loginCard = document.getElementById('loginCard');
+const otpCard = document.getElementById('otpCard');
+const dashboard = document.getElementById('dashboard');
+const mobileInput = document.getElementById('mobile');
+const mobileError = document.getElementById('mobileError');
+const sendOtpBtn = document.getElementById('sendOtpBtn');
+const otpInfo = document.getElementById('otpInfo');
+const otpInputs = document.querySelectorAll('#otpInputs input');
+const verifyOtpBtn = document.getElementById('verifyOtpBtn');
+const otpTimerEl = document.getElementById('otpTimer');
+const resendBtn = document.getElementById('resendBtn');
+
+const welcomeText = document.getElementById('welcomeText');
+const walletText = document.getElementById('walletText');
+const walletCard = document.getElementById('walletCard');
+const progressFill = document.getElementById('progressFill');
+const successMsg = document.getElementById('successMsg');
+const toast = document.getElementById('toast');
+const dailyBonusBtn = document.getElementById('dailyBonusBtn');
+const withdrawBtn = document.getElementById('withdrawBtn');
+
+let countdown, timeLeft = 180;
+let userUnsubscribe = null; // for firestore listener on user doc
+
+/* ---------- UI Helpers ---------- */
+function showToast(msg){
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(()=>{ toast.classList.remove('show'); }, 2800);
+}
+function showSuccess(msg){
+  successMsg.textContent = msg;
+  successMsg.style.display = 'block';
+  setTimeout(()=> successMsg.style.display = 'none', 2000);
+}
+function animateWallet(){
+  walletCard.classList.add('pulse');
+  setTimeout(()=> walletCard.classList.remove('pulse'), 800);
+}
+function spawnCoin(){
+  const coin = document.createElement('div');
+  coin.className = 'coin';
+  coin.style.left = (window.innerWidth/2 + (Math.random()*80-40)) + 'px';
+  coin.style.top = (window.innerHeight - 140) + 'px';
+  coin.textContent = '💰';
+  document.body.appendChild(coin);
+  setTimeout(()=> coin.remove(), 1200);
+}
+function saveLocal(){
+  storage.setItem('completedTasks', JSON.stringify(completedTasks));
+  storage.setItem('lastDailyBonus', lastDailyBonus || '');
+}
+
+/* ---------- OTP Timer ---------- */
+function startOtpTimer(){
+  resendBtn.disabled = true;
+  timeLeft = 180;
+  clearInterval(countdown);
+  countdown = setInterval(() => {
+    let m = Math.floor(timeLeft/60), s = timeLeft%60;
+    otpTimerEl.textContent = `⏱ Resend in ${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    timeLeft--;
+    if(timeLeft < 0){
+      clearInterval(countdown);
+      resendBtn.disabled = false;
+      otpTimerEl.textContent = '🔁 You can resend OTP now.';
+    }
+  }, 1000);
+}
+
+/* ---------- Firestore helpers ---------- */
+function userDocRef(mobile){
+  return db.collection('users').doc(mobile);
+}
+
+/* create user doc if missing */
+async function createUserIfNotExists(mobile, displayName){
+  const ref = userDocRef(mobile);
+  const snap = await ref.get();
+  if(!snap.exists){
+    await ref.set({
+      mobile,
+      name: displayName || 'User',
+      balance: 0,
+      lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    return { mobile, name: displayName || 'User', balance: 0 };
+  } else {
+    // update lastLogin
+    await ref.update({ lastLogin: firebase.firestore.FieldValue.serverTimestamp() });
+    return snap.data();
+  }
+}
+
+/* listen to user doc real-time */
+function startListeningUserDoc(mobile){
+  if(userUnsubscribe) userUnsubscribe();
+  const ref = userDocRef(mobile);
+  userUnsubscribe = ref.onSnapshot(doc => {
+    if(doc.exists){
+      const data = doc.data();
+      wallet = Number(data.balance || 0);
+      walletText.textContent = '₹' + Number(wallet).toFixed(2);
+      username = data.name || '';
+      welcomeText.textContent = username ? `Welcome, ${username} 👋` : `Welcome`;
+      animateWallet();
+      // reflect completed tasks local state UI
+      renderTasksUI();
+    }
+  }, err => {
+    console.error('listen user error', err);
+  });
+}
+
+/* update wallet with safe transaction and record transaction */
+async function creditWalletTransaction(mobile, amount, note = 'task reward'){
+  const userRef = userDocRef(mobile);
+  const txRef = db.collection('transactions').doc(); // auto id
+  try{
+    await db.runTransaction(async tx => {
+      const userSnap = await tx.get(userRef);
+      if(!userSnap.exists) throw 'User not found';
+      const prev = Number(userSnap.data().balance || 0);
+      const next = Number((prev + Number(amount)).toFixed(2));
+      tx.update(userRef, { balance: next });
+      tx.set(txRef, {
+        userMobile: mobile,
+        type: 'credit',
+        amount: Number(amount),
+        note,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    });
+    showToast(`+₹${amount} credited`);
+    spawnCoin(); spawnCoin();
+    animateWallet();
+  }catch(e){
+    console.error(e);
+    showToast('Error crediting wallet');
+  }
+}
+
+/* create withdraw request */
+async function createWithdrawRequest(mobile, amount){
+  const wRef = db.collection('withdrawals').doc();
+  await wRef.set({
+    userMobile: mobile,
+    amount: Number(amount),
+    status: 'pending',
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+}
+
+/* ---------- UI rendering ---------- */
+function renderTasksUI(){
+  const totalTasks = 3;
+  const done = completedTasks.length;
+  progressFill.style.width = `${(done/totalTasks)*100}%`;
+  for(let i=1;i<=3;i++){
+    const btn = document.querySelector(`#task${i} .complete-btn`);
+    if(completedTasks.includes(i)){
+      btn.textContent = '✅ Completed';
+      btn.disabled = true;
+      btn.style.opacity = 0.8;
+      btn.style.cursor = 'default';
+    } else {
+      // restore original text (if needed)
+      const orig = btn.getAttribute('data-default');
+      if(orig) btn.textContent = orig;
+      btn.disabled = false;
+      btn.style.opacity = 1;
+      btn.style.cursor = 'pointer';
+    }
+  }
+}
+
+/* ---------- Event handlers ---------- */
+sendOtpBtn.addEventListener('click', () => {
+  const mobile = mobileInput.value.trim();
+  if(!/^[6-9]\d{9}$/.test(mobile)){
+    mobileError.style.display = 'block';
+    return;
+  }
+  mobileError.style.display = 'none';
+  // show otp UI
+  loginCard.style.display = 'none';
+  otpCard.style.display = 'block';
+  otpInfo.textContent = `OTP sent to +91 ${mobile} (demo)`;
+  otpInputs.forEach(i => i.value='');
+  otpInputs[0].focus();
+  startOtpTimer();
+  showToast('OTP sent (demo: 123456)');
+});
+
+otpInputs.forEach((input, idx) => {
+  input.addEventListener('input', (e) => {
+    const val = input.value.replace(/[^0-9]/g,'');
+    input.value = val;
+    if(val && idx < otpInputs.length-1) otpInputs[idx+1].focus();
+    if(!val && idx>0) otpInputs[idx-1].focus();
+  });
+  input.addEventListener('keydown', (e) => {
+    if(e.key === 'Backspace' && !input.value && idx>0) otpInputs[idx-1].focus();
+  });
+});
+
+verifyOtpBtn.addEventListener('click', async () => {
+  const entered = Array.from(otpInputs).map(i=>i.value).join('');
+  if(entered === '123456'){
+    clearInterval(countdown);
+    const mobile = mobileInput.value.trim();
+    mobileNumber = mobile;
+    // ask for display name only if not present
+    let name = prompt('Enter display name (visible to you):', 'User');
+    if(!name) name = 'User';
+    username = name;
+    // create user doc if missing and update lastLogin
+    try{
+      await createUserIfNotExists(mobileNumber, username);
+      // mark logged in in local storage
+      storage.setItem('isLoggedIn','true');
+      storage.setItem('currentUser', mobileNumber);
+      storage.setItem('username', username);
+      // start listening user doc
+      startListeningUserDoc(mobileNumber);
+      otpCard.style.display = 'none';
+      dashboard.style.display = 'block';
+      renderTasksUI();
+      showToast('Login successful');
+    }catch(e){
+      console.error(e);
+      showToast('Error creating user');
+    }
+  } else {
+    showToast('Invalid OTP — use 123456 for demo');
+  }
+});
+
+resendBtn.addEventListener('click', () => {
+  startOtpTimer();
+  otpInputs.forEach(i => i.value='');
+  otpInputs[0].focus();
+  showToast('New OTP sent (demo: 123456)');
+});
+
+/* bind completeTask to global for inline onclick */
+window.completeTask = async function(taskId, reward){
+  if(!mobileNumber){
+    showToast('Please login first');
+    return;
+  }
+  if(completedTasks.includes(taskId)) return;
+  // mark locally
+  completedTasks.push(taskId);
+  saveLocal();
+  // credit wallet via Firestore transaction + record tx
+  await creditWalletTransaction(mobileNumber, reward, `Task ${taskId}`);
+  renderTasksUI();
+  showSuccess(`+₹${reward} added to wallet!`);
+};
+
+/* daily bonus */
+dailyBonusBtn.addEventListener('click', async () => {
+  if(!mobileNumber){
+    showToast('Please login first');
+    return;
+  }
+  const today = (new Date()).toISOString().slice(0,10);
+  if(lastDailyBonus === today){
+    showToast('Daily bonus already claimed today');
+    return;
+  }
+  lastDailyBonus = today;
+  saveLocal();
+  const bonus = 5;
+  await creditWalletTransaction(mobileNumber, bonus, 'Daily Bonus');
+  showToast(`Daily bonus ₹${bonus} credited`);
+});
+
+/* withdraw (creates request, resets wallet locally) */
+withdrawBtn.addEventListener('click', async () => {
+  if(!mobileNumber){
+    showToast('Please login first');
+    return;
+  }
+  // read current balance from user doc
+  const ref = userDocRef(mobileNumber);
+  const snap = await ref.get();
+  const bal = Number(snap.exists ? snap.data().balance || 0 : 0);
+  if(bal <= 0){
+    showToast('No balance to withdraw');
+    return;
+  }
+  // create withdraw request doc
+  await createWithdrawRequest(mobileNumber, bal);
+  // set user balance to 0 using transaction
+  await db.runTransaction(async tx => {
+    const userS = await tx.get(ref);
+    if(!userS.exists) throw 'User not found';
+    tx.update(ref, { balance: 0 });
+    tx.set(db.collection('transactions').doc(), {
+      userMobile: mobileNumber,
+      type: 'debit',
+      amount: bal,
+      note: 'withdraw request (demo)',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  });
+  showToast(`Withdrawal request created for ₹${bal} (demo)`);
+});
+
+/* ---------- Auto-login if stored ---------- */
+(function init(){
+  // store default completed buttons text
+  document.querySelectorAll('.complete-btn').forEach(b => b.setAttribute('data-default', b.textContent));
+  // if user already logged in and we have currentUser, start listener
+  const cur = storage.getItem('currentUser');
+  const logged = storage.getItem('isLoggedIn');
+  if(logged === 'true' && cur){
+    mobileNumber = cur;
+    username = storage.getItem('username') || 'User';
+    loginCard.style.display = 'none';
+    otpCard.style.display = 'none';
+    dashboard.style.display = 'block';
+    startListeningUserDoc(mobileNumber);
+    renderTasksUI();
+  }
+})();
+
+/* ---------- Logout helper for demo ---------- */
+window.addEventListener('keydown', (e) => {
+  if(e.ctrlKey && e.key === 'l'){
+    storage.removeItem('isLoggedIn');
+    storage.removeItem('currentUser');
+    storage.removeItem('username');
+    if(userUnsubscribe) userUnsubscribe();
+    dashboard.style.display = 'none';
+    loginCard.style.display = 'block';
+    otpCard.style.display = 'none';
+    showToast('Logged out (demo)');
+  }
+});
+</script>
 </body>
 </html>
