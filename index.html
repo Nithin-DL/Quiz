@@ -1,238 +1,174 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Earn Money Online - OTP Login</title>
-  <style>
-    * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-    body {
-      margin: 0;
-      height: 100vh;
-      background: linear-gradient(135deg, #6e8efb, #a777e3);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    .container {
-      background: #fff;
-      padding: 30px;
-      border-radius: 20px;
-      box-shadow: 0 10px 35px rgba(0,0,0,0.15);
-      width: 340px;
-      text-align: center;
-      transition: 0.3s;
-    }
-    h2 { color: #333; margin-bottom: 15px; }
-    .input-group input {
-      width: 100%; padding: 12px; font-size: 16px;
-      border-radius: 10px; border: 2px solid #ddd; outline: none;
-      transition: .3s;
-    }
-    .input-group input:focus { border-color: #6e8efb; }
-    .error { color: red; font-size: 14px; margin-top: 8px; display: none; }
-    button {
-      width: 100%; padding: 12px;
-      background: linear-gradient(45deg, #ff7eb3, #ff758c);
-      color: #fff; border: none; border-radius: 10px;
-      font-size: 16px; margin-top: 15px;
-      cursor: pointer; transition: .3s; font-weight: bold;
-    }
-    button:hover { transform: scale(1.05); opacity: 0.9; }
-    .otp-container { display: none; }
-    .otp-inputs {
-      display: flex; justify-content: center; gap: 10px; margin: 15px 0;
-    }
-    .otp-inputs input {
-      width: 40px; height: 45px; text-align: center; font-size: 20px;
-      border-radius: 8px; border: 2px solid #ddd; outline: none; transition: .3s;
-    }
-    .otp-inputs input:focus { border-color: #ff758c; }
-    .timer { font-size: 14px; color: #444; margin-top: 8px; font-weight: 500; }
-    .resend {
-      background: none; border: none; color: #6e8efb; font-weight: bold;
-      cursor: pointer; margin-top: 10px; text-decoration: underline;
-    }
-    .resend:disabled { color: #aaa; cursor: not-allowed; text-decoration: none; }
-    #dashboard {
-      display: none; background: #fff; padding: 20px; border-radius: 20px;
-      width: 360px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center;
-      animation: fadeIn .6s ease-in-out;
-    }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); } }
-    .wallet {
-      background: linear-gradient(45deg, #42e695, #3bb2b8);
-      color: white; padding: 15px; border-radius: 12px; font-size: 18px;
-      margin-bottom: 20px; font-weight: bold;
-    }
-    .task {
-      background: #f8f8ff; border: 2px solid #eee; border-radius: 12px;
-      padding: 12px; margin-bottom: 15px; text-align: left;
-    }
-    .task button {
-      width: 100%; margin-top: 10px;
-      background: linear-gradient(45deg, #6e8efb, #a777e3);
-      font-weight: bold;
-    }
-    .success { color: green; font-weight: bold; margin-top: 10px; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OTP Login | Earn Tasks</title>
+<style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #3b82f6, #06b6d4);
+    display: flex; justify-content: center; align-items: center;
+    height: 100vh; margin: 0; color: #fff;
+  }
+  .container {
+    background: white; color: #111;
+    border-radius: 16px; box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    padding: 30px; width: 360px; text-align: center;
+  }
+  h2 { color: #2563eb; margin-bottom: 15px; }
+  input {
+    width: 100%; padding: 12px; margin: 10px 0;
+    border-radius: 8px; border: 1px solid #ccc; font-size: 16px;
+  }
+  .otp-input { display: flex; justify-content: center; gap: 8px; }
+  .otp-input input {
+    width: 40px; text-align: center; font-size: 18px;
+  }
+  button {
+    width: 100%; background: #2563eb; border: none;
+    color: white; padding: 12px; border-radius: 8px;
+    font-size: 16px; cursor: pointer; margin-top: 8px;
+    transition: 0.3s;
+  }
+  button:hover { background: #1d4ed8; }
+  #resendBtn { background: #10b981; display: none; }
+  .timer { color: #ef4444; font-size: 14px; margin-top: 8px; }
+
+  /* Dashboard */
+  #dashboard { display: none; }
+  .wallet {
+    background: #2563eb; color: #fff; padding: 15px;
+    border-radius: 10px; margin-bottom: 20px;
+  }
+  .tasks div {
+    background: #f1f5f9; margin: 8px 0; padding: 10px;
+    border-radius: 8px; cursor: pointer;
+  }
+</style>
 </head>
 <body>
+<div class="container" id="loginDiv">
+  <h2>Login with Mobile</h2>
+  <input type="tel" id="phoneNumber" placeholder="Enter Mobile Number (10 digits)" maxlength="10">
+  <div id="recaptcha-container"></div>
+  <button id="sendOtpBtn">Send OTP</button>
 
-  <!-- Login -->
-  <div class="container" id="loginBox">
-    <h2>Login with Mobile</h2>
-    <div class="input-group">
-      <input type="tel" id="mobile" placeholder="Enter Mobile Number" maxlength="10">
-      <div class="error" id="error">Enter valid 10-digit mobile number</div>
+  <div id="otpDiv" style="display:none;">
+    <div class="otp-input">
+      <input type="text" maxlength="1">
+      <input type="text" maxlength="1">
+      <input type="text" maxlength="1">
+      <input type="text" maxlength="1">
+      <input type="text" maxlength="1">
+      <input type="text" maxlength="1">
     </div>
-    <div id="recaptcha-container"></div>
-    <button onclick="sendOTP()">Send OTP</button>
+    <div class="timer" id="timerText"></div>
+    <button id="verifyOtpBtn">Verify OTP</button>
+    <button id="resendBtn">Resend OTP</button>
   </div>
+</div>
 
-  <!-- OTP Verification -->
-  <div class="container otp-container" id="otpBox">
-    <h2>Enter 6-Digit OTP</h2>
-    <p id="otpInfo"></p>
-
-    <div class="otp-inputs" id="otpInputs">
-      <input type="text" maxlength="1" oninput="nextInput(this, 0)">
-      <input type="text" maxlength="1" oninput="nextInput(this, 1)">
-      <input type="text" maxlength="1" oninput="nextInput(this, 2)">
-      <input type="text" maxlength="1" oninput="nextInput(this, 3)">
-      <input type="text" maxlength="1" oninput="nextInput(this, 4)">
-      <input type="text" maxlength="1" oninput="nextInput(this, 5)">
-    </div>
-
-    <button onclick="verifyOTP()">Verify OTP</button>
-    <div class="timer" id="timer">Resend available in 03:00</div>
-    <button class="resend" id="resendBtn" onclick="resendOTP()" disabled>Resend OTP</button>
+<div class="container" id="dashboard">
+  <h2>Welcome 👋</h2>
+  <div class="wallet">
+    <h3>Wallet Balance: ₹<span id="walletBalance">0</span></h3>
   </div>
-
-  <!-- Dashboard -->
-  <div id="dashboard">
-    <h2>🎯 Tasks & Earn Money</h2>
-    <div class="wallet" id="wallet">💰 Wallet Balance: ₹0.00</div>
-
-    <div class="task" id="task1">
-      <h4>📱 Task 1: Share our app link on WhatsApp</h4>
-      <button onclick="completeTask(1, 10)">Complete Task +₹10</button>
-    </div>
-
-    <div class="task" id="task2">
-      <h4>🧾 Task 2: Fill feedback form</h4>
-      <button onclick="completeTask(2, 15)">Complete Task +₹15</button>
-    </div>
-
-    <div class="task" id="task3">
-      <h4>🎥 Task 3: Watch 1 promotional video</h4>
-      <button onclick="completeTask(3, 20)">Complete Task +₹20</button>
-    </div>
-
-    <div class="success" id="successMsg"></div>
+  <div class="tasks">
+    <h4>Tasks Available</h4>
+    <div onclick="completeTask(10)">📝 Survey Form – ₹10</div>
+    <div onclick="completeTask(15)">📸 Upload Image – ₹15</div>
+    <div onclick="completeTask(20)">🎥 Watch Video – ₹20</div>
   </div>
+</div>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
+<script type="module">
+  // Firebase imports
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
-  <script>
-    // 🔹 Your Firebase config
-    const firebaseConfig = {
-      apiKey: "AIzaSyCX036WRMWoiH0acazsLE8o-JWlOQQiByY",
-      authDomain: "otp-login-6c7bf.firebaseapp.com",
-      projectId: "otp-login-6c7bf",
-      storageBucket: "otp-login-6c7bf.firebasestorage.app",
-      messagingSenderId: "1091262594139",
-      appId: "1:1091262594139:web:4a7295747c3f7134d5937e"
-    };
+  const firebaseConfig = {
+    apiKey: "AIzaSyCX036WRMWoiH0acazsLE8o-JWlOQQiByY",
+    authDomain: "otp-login-6c7bf.firebaseapp.com",
+    projectId: "otp-login-6c7bf",
+    storageBucket: "otp-login-6c7bf.firebasestorage.app",
+    messagingSenderId: "1091262594139",
+    appId: "1:1091262594139:web:4a7295747c3f7134d5937e"
+  };
 
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  auth.languageCode = "en";
 
-    let countdown, timeLeft = 180, wallet = 0, confirmationResult;
+  const sendOtpBtn = document.getElementById('sendOtpBtn');
+  const verifyOtpBtn = document.getElementById('verifyOtpBtn');
+  const otpDiv = document.getElementById('otpDiv');
+  const timerText = document.getElementById('timerText');
+  const resendBtn = document.getElementById('resendBtn');
+  let confirmationResult;
 
-    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
-      size: 'invisible'
-    });
+  window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+    'size': 'invisible'
+  });
 
-    function sendOTP() {
-      const mobile = document.getElementById("mobile").value.trim();
-      const error = document.getElementById("error");
+  sendOtpBtn.onclick = async () => {
+    const phoneNumber = "+91" + document.getElementById('phoneNumber').value.trim();
+    if (phoneNumber.length < 13) return alert("Enter valid 10-digit number");
+    try {
+      confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, window.recaptchaVerifier);
+      otpDiv.style.display = 'block';
+      sendOtpBtn.style.display = 'none';
+      startTimer();
+      alert("OTP sent successfully!");
+    } catch (error) {
+      console.error(error);
+      alert("Error: " + error.message);
+    }
+  };
 
-      if (/^[6-9]\d{9}$/.test(mobile)) {
-        error.style.display = "none";
-        const phoneNumber = "+91" + mobile;
-        const appVerifier = window.recaptchaVerifier;
+  verifyOtpBtn.onclick = async () => {
+    const otpInputs = document.querySelectorAll('.otp-input input');
+    const otp = Array.from(otpInputs).map(i => i.value).join('');
+    if (otp.length !== 6) return alert("Enter 6-digit OTP");
+    try {
+      await confirmationResult.confirm(otp);
+      document.getElementById('loginDiv').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      alert("Login Successful!");
+    } catch (error) {
+      alert("Invalid OTP");
+    }
+  };
 
-        auth.signInWithPhoneNumber(phoneNumber, appVerifier)
-          .then(result => {
-            confirmationResult = result;
-            document.getElementById("loginBox").style.display = "none";
-            document.getElementById("otpBox").style.display = "block";
-            document.getElementById("otpInfo").innerText = "OTP sent to " + phoneNumber;
-            startTimer();
-          })
-          .catch(err => {
-            alert("Error sending OTP: " + err.message);
-            window.recaptchaVerifier.render().then(widgetId => grecaptcha.reset(widgetId));
-          });
+  function startTimer() {
+    let time = 180; // 3 minutes
+    resendBtn.style.display = 'none';
+    const timer = setInterval(() => {
+      if (time <= 0) {
+        clearInterval(timer);
+        timerText.innerText = "Time expired!";
+        resendBtn.style.display = 'block';
       } else {
-        error.style.display = "block";
+        const min = Math.floor(time / 60);
+        const sec = time % 60;
+        timerText.innerText = `Resend available in ${min}:${sec < 10 ? "0" + sec : sec}`;
+        time--;
       }
-    }
+    }, 1000);
+  }
 
-    function nextInput(input, index) {
-      if (input.value.length === 1 && index < 5) input.nextElementSibling.focus();
-    }
+  resendBtn.onclick = () => {
+    resendBtn.style.display = 'none';
+    document.getElementById('sendOtpBtn').click();
+  };
 
-    function startTimer() {
-      const timerDisplay = document.getElementById("timer");
-      const resendBtn = document.getElementById("resendBtn");
-      resendBtn.disabled = true;
-      timeLeft = 180;
-      clearInterval(countdown);
-      countdown = setInterval(() => {
-        let min = Math.floor(timeLeft / 60);
-        let sec = timeLeft % 60;
-        timerDisplay.textContent = `⏱ Resend in ${String(min).padStart(2,"0")}:${String(sec).padStart(2,"0")}`;
-        timeLeft--;
-        if (timeLeft < 0) {
-          clearInterval(countdown);
-          resendBtn.disabled = false;
-          timerDisplay.textContent = "🔁 You can resend OTP now.";
-        }
-      }, 1000);
-    }
-
-    function resendOTP() {
-      document.querySelectorAll("#otpInputs input").forEach(i => i.value = "");
-      document.querySelector("#otpInputs input").focus();
-      sendOTP();
-    }
-
-    function verifyOTP() {
-      const otpInputs = document.querySelectorAll("#otpInputs input");
-      let enteredOTP = "";
-      otpInputs.forEach(i => enteredOTP += i.value);
-
-      confirmationResult.confirm(enteredOTP)
-        .then(result => {
-          document.getElementById("otpBox").style.display = "none";
-          document.getElementById("dashboard").style.display = "block";
-        })
-        .catch(() => alert("Invalid OTP! Try again."));
-    }
-
-    function completeTask(taskNumber, reward) {
-      const task = document.getElementById("task" + taskNumber);
-      task.innerHTML = `<h4>✅ Task ${taskNumber} Completed!</h4>`;
-      wallet += reward;
-      document.getElementById("wallet").innerText = "💰 Wallet Balance: ₹" + wallet.toFixed(2);
-      document.getElementById("successMsg").innerText = `+₹${reward} added to wallet!`;
-      setTimeout(() => { document.getElementById("successMsg").innerText = ""; }, 2000);
-    }
-  </script>
+  // Wallet demo
+  let walletBalance = 0;
+  window.completeTask = function(amount) {
+    walletBalance += amount;
+    document.getElementById('walletBalance').innerText = walletBalance;
+    alert(`Task Completed! ₹${amount} added to wallet.`);
+  };
+</script>
 </body>
 </html>
