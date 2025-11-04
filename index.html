@@ -1,222 +1,147 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Mobile OTP Login</title>
-<style>
-body {
-  font-family: Arial;
-  background: #f2f2f2;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
-.container {
-  background: #fff;
-  padding: 25px;
-  border-radius: 8px;
-  width: 320px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.2);
-}
-input {
-  width: 100%;
-  padding: 12px;
-  margin: 8px 0;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-button {
-  width: 100%;
-  padding: 12px;
-  background: #0066ff;
-  color: #fff;
-  font-size: 16px;
-  border: none;
-  cursor: pointer;
-  margin-top: 5px;
-  border-radius: 5px;
-}
-#otp-box {
-  display: none;
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In / Sign Up | OTP Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js"></script>
+  <style>
+    body { font-family: 'Poppins', sans-serif; background: #f9fafb; }
+    .hidden { display: none; }
+    .otp-box { width: 2.5rem; height: 2.5rem; text-align: center; font-size: 1.25rem; border: 1px solid #d1d5db; border-radius: 0.375rem; }
+  </style>
 </head>
-<body>
+<body class="flex items-center justify-center min-h-screen">
 
-<div class="container">
-    <h3>Mobile OTP Login</h3>
+  <div class="bg-white shadow-2xl rounded-2xl w-full max-w-md p-8">
+    <h2 class="text-3xl font-semibold text-center mb-6" id="formTitle">Sign Up</h2>
 
-    <input type="text" id="phone" placeholder="Enter Mobile Number (e.g. +91xxxxxxxxxx)">
-    <div id="recaptcha-container"></div>
-    <button onclick="sendOTP()">Send OTP</button>
+    <div class="space-y-4">
+      <input type="email" id="email" placeholder="Enter Email" class="w-full border rounded-lg p-3 focus:ring focus:ring-blue-300">
+      <input type="text" id="mobile" placeholder="Enter Mobile Number (with country code, e.g. +91)" class="w-full border rounded-lg p-3 focus:ring focus:ring-blue-300">
+      <input type="password" id="password" placeholder="Enter Password" class="w-full border rounded-lg p-3 focus:ring focus:ring-blue-300">
+      <div id="recaptcha-container" class="mt-2"></div>
 
-    <div id="otp-box">
-        <input type="text" id="otp" placeholder="Enter OTP">
-        <button onclick="verifyOTP()">Verify OTP</button>
+      <div id="otpSection" class="hidden space-y-3">
+        <div class="flex justify-between">
+          <input class="otp-box" maxlength="1" />
+          <input class="otp-box" maxlength="1" />
+          <input class="otp-box" maxlength="1" />
+          <input class="otp-box" maxlength="1" />
+          <input class="otp-box" maxlength="1" />
+          <input class="otp-box" maxlength="1" />
+        </div>
+        <button id="verifyOtpBtn" class="w-full bg-green-500 text-white p-3 rounded-lg hover:bg-green-600">Verify OTP</button>
+      </div>
+
+      <button id="signupBtn" class="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700">Sign Up</button>
+      <p class="text-center text-sm text-gray-600">
+        <span id="toggleText">Already have an account?</span>
+        <button id="toggleForm" class="text-blue-500 font-semibold">Sign In</button>
+      </p>
     </div>
-</div>
 
-<!-- Firebase Config -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
-import { 
-  getAuth, 
-  RecaptchaVerifier, 
-  signInWithPhoneNumber 
-} from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyD9IrRF15IfzYEfwQTl_JA_ie4SyaPCUfU",
-  authDomain: "otp-login-form-e13e2.firebaseapp.com",
-  projectId: "otp-login-form-e13e2",
-  storageBucket: "otp-login-form-e13e2.firebasestorage.app",
-  messagingSenderId: "345706715094",
-  appId: "1:345706715094:web:d0fd55ebe741ea1871b677"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-
-// Recaptcha Setup
-window.recaptchaVerifier = new RecaptchaVerifier(
-  auth,
-  "recaptcha-container",
-  {
-    size: "normal",
-  }
-);
-
-// Send OTP
-window.sendOTP = function () {
-  const phone = document.getElementById("phone").value;
-  if (phone.length < 10) return alert("Enter valid phone number");
-
-  signInWithPhoneNumber(auth, phone, window.recaptchaVerifier)
-    .then((confirmationResult) => {
-      window.confirmationResult = confirmationResult;
-      alert("OTP Sent!");
-      document.getElementById("otp-box").style.display = "block";
-    })
-    .catch((error) => {
-      alert(error.message);
-    });
-}
-
-// Verify OTP
-window.verifyOTP = function () {
-  const otp = document.getElementById("otp").value;
-  confirmationResult.confirm(otp)
-    .then((result) => {
-      alert("✅ Login Successful");
-      console.log("User:", result.user);
-    })
-    .catch((error) => {
-      alert("❌ Invalid OTP");
-    });
-}
-</script>
-
-</body>
-</html>  <div class="wallet">
-    <h3>Wallet Balance: ₹<span id="walletBalance">0</span></h3>
+    <p id="message" class="text-center mt-4 text-sm font-medium text-gray-600"></p>
   </div>
-  <div class="tasks">
-    <h4>Tasks Available</h4>
-    <div onclick="completeTask(10)">📝 Survey Form – ₹10</div>
-    <div onclick="completeTask(15)">📸 Upload Image – ₹15</div>
-    <div onclick="completeTask(20)">🎥 Watch Video – ₹20</div>
-  </div>
-</div>
 
-<script type="module">
-  // Firebase imports
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-  import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+  <script type="module">
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyDq59CI8-m99XYFnC3j3Gng82QM59ClfAw",
+      authDomain: "signup-form-and-login-form.firebaseapp.com",
+      projectId: "signup-form-and-login-form",
+      storageBucket: "signup-form-and-login-form.firebasestorage.app",
+      messagingSenderId: "441577589871",
+      appId: "1:441577589871:web:d1cd3a536c5f9fab6cd19a",
+      measurementId: "G-2KFXZ65BND"
+    };
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyCX036WRMWoiH0acazsLE8o-JWlOQQiByY",
-    authDomain: "otp-login-6c7bf.firebaseapp.com",
-    projectId: "otp-login-6c7bf",
-    storageBucket: "otp-login-6c7bf.firebasestorage.app",
-    messagingSenderId: "1091262594139",
-    appId: "1:1091262594139:web:4a7295747c3f7134d5937e"
-  };
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js";
+    import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, createUserWithEmailAndPassword, signInWithEmailAndPassword } 
+    from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  auth.languageCode = "en";
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    let confirmationResult;
 
-  const sendOtpBtn = document.getElementById('sendOtpBtn');
-  const verifyOtpBtn = document.getElementById('verifyOtpBtn');
-  const otpDiv = document.getElementById('otpDiv');
-  const timerText = document.getElementById('timerText');
-  const resendBtn = document.getElementById('resendBtn');
-  let confirmationResult;
+    const email = document.getElementById('email');
+    const mobile = document.getElementById('mobile');
+    const password = document.getElementById('password');
+    const message = document.getElementById('message');
+    const otpSection = document.getElementById('otpSection');
+    const signupBtn = document.getElementById('signupBtn');
+    const verifyOtpBtn = document.getElementById('verifyOtpBtn');
+    const toggleForm = document.getElementById('toggleForm');
+    const formTitle = document.getElementById('formTitle');
+    const toggleText = document.getElementById('toggleText');
+    let isSignUp = true;
 
-  window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-    'size': 'invisible'
-  });
+    toggleForm.addEventListener('click', () => {
+      isSignUp = !isSignUp;
+      formTitle.textContent = isSignUp ? "Sign Up" : "Sign In";
+      signupBtn.textContent = isSignUp ? "Sign Up" : "Sign In";
+      toggleText.textContent = isSignUp ? "Already have an account?" : "Don't have an account?";
+      toggleForm.textContent = isSignUp ? "Sign In" : "Sign Up";
+    });
 
-  sendOtpBtn.onclick = async () => {
-    const phoneNumber = "+91" + document.getElementById('phoneNumber').value.trim();
-    if (phoneNumber.length < 13) return alert("Enter valid 10-digit number");
-    try {
-      confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, window.recaptchaVerifier);
-      otpDiv.style.display = 'block';
-      sendOtpBtn.style.display = 'none';
-      startTimer();
-      alert("OTP sent successfully!");
-    } catch (error) {
-      console.error(error);
-      alert("Error: " + error.message);
-    }
-  };
+    // reCAPTCHA setup
+    window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+      size: 'normal',
+      callback: (response) => {}
+    });
 
-  verifyOtpBtn.onclick = async () => {
-    const otpInputs = document.querySelectorAll('.otp-input input');
-    const otp = Array.from(otpInputs).map(i => i.value).join('');
-    if (otp.length !== 6) return alert("Enter 6-digit OTP");
-    try {
-      await confirmationResult.confirm(otp);
-      document.getElementById('loginDiv').style.display = 'none';
-      document.getElementById('dashboard').style.display = 'block';
-      alert("Login Successful!");
-    } catch (error) {
-      alert("Invalid OTP");
-    }
-  };
+    signupBtn.addEventListener('click', async () => {
+      message.textContent = "";
 
-  function startTimer() {
-    let time = 180; // 3 minutes
-    resendBtn.style.display = 'none';
-    const timer = setInterval(() => {
-      if (time <= 0) {
-        clearInterval(timer);
-        timerText.innerText = "Time expired!";
-        resendBtn.style.display = 'block';
+      if (mobile.value.trim() !== "") {
+        // Phone sign-in
+        try {
+          const appVerifier = window.recaptchaVerifier;
+          const result = await signInWithPhoneNumber(auth, mobile.value, appVerifier);
+          confirmationResult = result;
+          otpSection.classList.remove('hidden');
+          message.textContent = "OTP sent successfully!";
+          message.classList.add('text-green-600');
+        } catch (error) {
+          message.textContent = "Error: " + error.message;
+          message.classList.add('text-red-600');
+        }
+      } else if (email.value && password.value) {
+        try {
+          if (isSignUp) {
+            await createUserWithEmailAndPassword(auth, email.value, password.value);
+            message.textContent = "Account created successfully!";
+            message.classList.add('text-green-600');
+          } else {
+            await signInWithEmailAndPassword(auth, email.value, password.value);
+            message.textContent = "Signed in successfully!";
+            message.classList.add('text-green-600');
+          }
+        } catch (error) {
+          message.textContent = "Error: " + error.message;
+          message.classList.add('text-red-600');
+        }
       } else {
-        const min = Math.floor(time / 60);
-        const sec = time % 60;
-        timerText.innerText = `Resend available in ${min}:${sec < 10 ? "0" + sec : sec}`;
-        time--;
+        message.textContent = "Please fill all required fields.";
+        message.classList.add('text-red-600');
       }
-    }, 1000);
-  }
+    });
 
-  resendBtn.onclick = () => {
-    resendBtn.style.display = 'none';
-    document.getElementById('sendOtpBtn').click();
-  };
-
-  // Wallet demo
-  let walletBalance = 0;
-  window.completeTask = function(amount) {
-    walletBalance += amount;
-    document.getElementById('walletBalance').innerText = walletBalance;
-    alert(`Task Completed! ₹${amount} added to wallet.`);
-  };
-</script>
+    verifyOtpBtn.addEventListener('click', async () => {
+      const otpInputs = document.querySelectorAll('.otp-box');
+      const otp = Array.from(otpInputs).map(i => i.value).join('');
+      try {
+        await confirmationResult.confirm(otp);
+        message.textContent = "Phone verified successfully!";
+        message.classList.add('text-green-600');
+      } catch (error) {
+        message.textContent = "Invalid OTP!";
+        message.classList.add('text-red-600');
+      }
+    });
+  </script>
 </body>
 </html>
